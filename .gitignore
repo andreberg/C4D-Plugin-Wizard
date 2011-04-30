@@ -1,0 +1,43 @@
+# Generic stuff
+
+*~
+*.[oa]
+*.bak
+backup/
+
+# Mac OS X stuff
+
+Desktop DF
+Desktop DB
+.Spotlight-V100
+.DS_Store
+.Trashes
+.com.apple.timemachine.supported
+.fseventsd
+.syncinfo
+.TemporaryItems
+._.*
+
+# Windows stuff
+
+Thumbs.db
+desktop.ini
+
+# TextMate stuff
+
+*.tm_build_errors
+*.tmproj
+
+# Eclipse/Aptana stuff
+
+*.project
+doc/
+
+# CodePro stuff
+
+coverage.txt
+coverage/
+
+# Python stuff
+
+*.pyc
