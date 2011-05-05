@@ -1,7 +1,7 @@
-# -*- coding: MacRoman  -*-
+# -*- coding: ${ENCODING}  -*-
 # 
 #  <PluginNameAsIdentifier>.pyp
-#  CINEMA 4D Python Tag Plugins (${PROCESSOR_TYPE})
+#  CINEMA 4D Python Plugins
 #  
 #  Created by ${FULLNAME} on ${DATE}.
 #  Copyright ${YEAR} ${ORGANIZATION_NAME}. All rights reserved.
@@ -171,20 +171,20 @@ class <PluginNameAsIdentifier>Main(plugins.CommandData):
         # create the dialog
         if self.dialog is None:
             self.dialog = <PluginNameAsIdentifier>Dialog()
-        return self.dialog.Open(c4d.DLG_TYPE_ASYNC, pluginid=ID_<PLUGIN>)
+        return self.dialog.Open(c4d.DLG_TYPE_ASYNC, pluginid=ID_<PluginNameAsUppercaseIdentifier>)
     
     def RestoreLayout(self, secref):
         # manage nonmodal dialog
         if self.dialog is None:
-            self.dialog = <PluginNameAsIdentifier>Dialog()
-        return self.dialog.Restore(pluginid=ID_<PLUGIN>, secret=secref)
+            self.dialog = <Plugin>Dialog()
+        return self.dialog.Restore(pluginid=ID_<PluginNameAsUppercaseIdentifier>, secret=secref)
     
 
 
 if __name__ == "__main__":
     thispath = os.path.dirname(os.path.abspath(__file__))
     icon = bitmaps.BaseBitmap()
-    icon.InitWith(os.path.join(thispath, "res/", "icon.tif"))
+    icon.InitWith(os.path.join(thispath, "res", "icon.tif"))
     plugins.RegisterCommandPlugin(
         ID_<PluginNameAsUppercaseIdentifier>, 
         PLUGIN_NAME, 
