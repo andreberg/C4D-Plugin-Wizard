@@ -1,5 +1,6 @@
 #!/usr/local/bin/python2.7
 # encoding: utf-8
+# pylint: disable-msg=W0603
 '''
 c4dplugwiz -- CINEMA 4D Python plugin wizard
 
@@ -8,12 +9,27 @@ that helps with creating python plugins for CINEMA 4D.
 It works by copying pre-existing folder structures from
 a data repository to a destination specified by the user.
 
-There can be multiple folder structures, e.g. one per type
-of plugin that one can create in CINEMA 4D. 
+Definition
+==========
 
-At the heart lies the idea that these folder structures 
-contain dirs and files subject to a customizable template 
-system, which is divided into 2 main steps:
+A I{wizard} or I{assistant} is defined to be some process
+that is helpful in some creational undertaking, providing
+means to a customizable starting point and easing the user 
+into the next steps towards some goal.
+
+Here, the goal is the creation of Python plugins, and the 
+means are blueprint folder structures with files, utilizing
+a magic token based templating system. The tokens for this
+templating system can be used inside the contents of a file
+as well as inside the name of a file. 
+
+How It Works
+============
+
+First, copy the corresponding blueprint folder structure 
+from a source repository to a destination folder (there can
+be multiple destination folders). Then, process any template
+tokens. This is divided into 2 steps:
 
     1. Process file names C{I{*}}
     2. Process file contents
@@ -67,18 +83,30 @@ or functions calls (e.g. C{time.strftime('%Y')}).
 If you need to import additional modules in order to use some 
 functionality for Keys or Values, a special initialization line 
 in C{rules.py} can be used to specify a comma separated list of 
-modules to import. It must appear as the very first line and 
-have the following syntax: C{# import module1,module2,module3 ...} 
-and so on (the ellipsis not being part of the syntax). 
+modules to import. Each of these lines must have the following 
+syntax: C{# import module1,module2,module3 ...} and so on
+(the ellipsis not being part of the syntax). 
 
 Lines in C{rules.py} other than the initialization line starting 
 with the hash character are considered comments and ignored, as
 well as lines that do not have a format of C{<I{key}>\s*=\s*<I{value}>}
 where C{<I{...}>} stands for a variable term and C{\s*} stands for zero
-or more spaces. If you need a value for a key to span multiple 
-lines, assign the value in I{raw text} form, e.g. between single, 
-double or tripple quotes and with carriage returns, linefeeds etc. 
-escaped.
+or more spaces. 
+
+Tips For Creating rules.py
+==========================
+
+If you need a value for a key to span multiple lines, assign the 
+value in I{raw text} form, e.g. between single, double or tripple 
+quotes and with carriage returns, linefeeds etc. escaped. 
+
+Also, if you expect to make full use of non-ASCII characters, such 
+as accented e's or umlauts, keep in mind that you must define them 
+in C{rules.py} as unicode string (C{u'...'}) and set an encoding
+comment at the very beginning (e.g. C{# coding: utf-8}). The same 
+goes for the strings in the templated file where the unicode value
+should be inserted: these must be unicode strings too and the file
+also needs a coding comment at the top. 
 
 
 @author:     André Berg
@@ -105,7 +133,6 @@ import sys
 import os
 import re
 import time
-import fileinput
 import unicodedata as ud
 
 from argparse import ArgumentParser
@@ -115,12 +142,12 @@ from subprocess import Popen, PIPE
 import shutil as su
 import codecs
 
-__all__ = ['FolderStructure', 'TextFX', 'main']
-__version__ = 0.2
+__all__ = ['FolderStructure', 'TextFX', 'main', '_system']
+__version__ = 0.4
 __date__ = '2011-04-30'
-__updated__ = '2011-05-03'
+__updated__ = '2011-05-05'
 
-DEBUG = 1
+DEBUG = 0
 TESTRUN = 0
 PROFILE = 0 or (os.environ.has_key('BMProfileLevel') and os.environ['BMProfileLevel'] > 0)
 
@@ -141,7 +168,7 @@ class TextFX(object):
     Methods for processing and transforming text.
     Note: currently Unicode support is rather lax.
     '''
-    greekchars = {
+    GREEKCHARS = {
         'alpha':'a',
         'beta':'b',
         'chi':'c',
@@ -180,7 +207,7 @@ class TextFX(object):
         'xi':'x',
         'zeta':'z'    
     }
-    greektrans = { # IGNORE:W0109
+    GREEKTRANS = { # IGNORE:W0109
         u'α': 'a',  u'Α': 'A', 
         u'β': 'b',  u'Β': 'B', 
         u'γ': 'g',  u'Γ': 'G', 
@@ -206,7 +233,7 @@ class TextFX(object):
         u'Ψ': 'ps', u'Ψ': 'Ps', 
         u'ω': 'o',  u'Ω': 'O'        
     }
-    greekalphabet = {
+    GREEKALPHABET = {
         u'α': 'alpha', u'β': 'beta', u'γ': 'gamma', u'δ': 'delta', u'ε': 'epsilon',
         u'ζ': 'zeta', u'η': 'eta', u'θ': 'theta', u'ι': 'iota', u'κ': 'kappa', 
         u'λ': 'lambda', u'μ': 'mu', u'ν': 'nu', u'ξ': 'xi', u'ο': 'omicron', 
@@ -219,7 +246,7 @@ class TextFX(object):
         u'Ρ': 'Rho', u'Σ': 'Sigma', u'Τ': 'Tau', u'Υ': 'Upsilon', u'Φ': 'Phi', 
         u'Χ': 'Chi', u'Ψ': 'Psi', u'Ω': 'Omega'
     }
-    phoneticumlauts = {
+    PHONETICUMLAUTS = {
         u'\xe4': 'ae',
         u'\xe6': 'ae',
         u'\xfc': 'ue',
@@ -234,18 +261,6 @@ class TextFX(object):
     }
     def __init__(self):
         super(TextFX, self).__init__()
-
-    #def _combiningmarkslistgen():
-    #    '''Generates a list with unicode combining marks in range U+0300 to U+036F'''
-    #    allmarks = []
-    #    for i in range(0, 7):
-    #        for j in range(0, 16):
-    #            r = u'%su03%x%x' % (u'\\', i, j)
-    #            allmarks.append(r.decode('unicode_escape'))
-    #            #filename = re.sub(re.compile(r.decode('unicode_escape')), '', filename)
-    #    #print allmarks
-    #    #print len(allmarks)
-    #    return allmarks
         
     @staticmethod
     def precompunichars(word, canonical=True):
@@ -297,21 +312,21 @@ class TextFX(object):
     
     @staticmethod
     def tocamelcase(word, capitalized=True):
-        '''
+        u'''
         Convert 'word' to CamelCase.
         Examples: 
         
         >>> TextFX.tocamelcase('hot flaming cats')
-        HotFlamingCats
+        'HotFlamingCats'
         >>> TextFX.tocamelcase('HotFlamingCats')
-        HotFlamingCats
+        'HotFlamingCats'
         >>> TextFX.tocamelcase('hotFlamingCats')
-        HotFlamingCats
+        'HotFlamingCats'
         >>> TextFX.tocamelcase('hot_flaming_cats')
-        HotFlamingCats
+        'HotFlamingCats'
         >>> TextFX.tocamelcase('Hot Flaming _ Cats')
-        HotFlamingCats
-        >>> TextFX.tocamelcase(u'höt_fläming_cäts', False)
+        'HotFlamingCats'
+        >>> print TextFX.tocamelcase(u'höt_fläming_cäts', False)
         hötFlämingCäts
         
         @param word: the string to convert
@@ -328,9 +343,9 @@ class TextFX(object):
                 return matchobj.group(0)
         if word is None: return ''
         word = word.strip()
-        word = re.sub(r'_+([^_]+)', __capitalizematch, word)
-        word = re.sub(r' ([^ ]+)', __capitalizematch, word)
-        word = re.sub(' ', '', word)
+        word = re.sub(ur'_+([^_]+)', __capitalizematch, word, re.UNICODE)
+        word = re.sub(ur' ([^ ]+)', __capitalizematch, word, re.UNICODE)
+        word = re.sub(' ', '', word, re.UNICODE)
         if capitalized:
             word = '%s%s' % (word[0].upper(), word[1:])
         return word
@@ -352,7 +367,7 @@ class TextFX(object):
         Example:
         
         >>> TextFX.abbreviate('AndisSSuper_PluginSTOP ')
-        ASPS
+        'ASPS'
         
         @param word: the string to abbreviate
         @type word: C{string}
@@ -369,8 +384,8 @@ class TextFX(object):
         return "".join(word)
     
     @staticmethod
-    def sanitize(word, safechar='_', replaceumlaut=False, replacediacritic=False, replacegreek=False, allowedchars='_\-()'):
-        '''
+    def sanitize(word, safechar='_', replaceumlauts=False, replacediacritics=False, replacegreek=False, allowedchars='_\-()'):
+        u'''
         Sanitize word so that it might be used as a filename 
         in an online transfer or in software that needs to 
         work on a restricted set of names for files and other
@@ -383,19 +398,32 @@ class TextFX(object):
         replacing higher order chars with a char deemed safe, 
         like an underbar '_', e.g. given 'Über', 'Ueber' or
         'Uber' are generally favorable to '_ber'.
+        
+        Examples:
+        
+        >>> TextFX.sanitize(u'Äsbëst-Shop')
+        u'_sb_st-Shop'
+        >>> TextFX.sanitize(u'Äsbëst-Shop', safechar='')
+        u'sbst-Shop'
+        >>> TextFX.sanitize(u'Äsbëst-Shop', safechar='', replaceumlauts=True)
+        u'Aesbst-Shop'
+        >>> TextFX.sanitize(u'Äsbëst-Shop', safechar='', replaceumlauts=True, replacediacritics=True)
+        u'Aesbest-Shop'
+        >>> TextFX.sanitize(u'Äsbëst-Shop', safechar='', replaceumlauts=True, replacediacritics=True, allowedchars='')
+        u'AesbestShop'
                         
         @param word: the word to sanitize
         @type word: C{string}
         @param safechar: the char to use for replacing non-allowed chars
         @type safechar: C{string}
-        @param replaceumlaut: 
+        @param replaceumlauts: 
             if True, replace umlauts like 'ä' with a phonetic 
             equivalent like 'ae'.
-        @type replaceumlaut: C{bool}
-        @param replacediacritic: 
+        @type replaceumlauts: C{bool}
+        @param replacediacritics: 
             if True, replace diacritics with a decomposed 
             form where the mark is dropped (e.g. 'ç' becomes 'c')
-        @type replacediacritic: C{bool}
+        @type replacediacritics: C{bool}
         @param replacegreek: 
             if True, replace greek letters with their 
             translitterated name, e.g. 'π' becomes 'pi'.
@@ -404,23 +432,16 @@ class TextFX(object):
             (note: the string is used within a regex)
         @type allowedchars: C{string}
         '''
-        #fileparts = re.split(ur'(.*)\.(.*)$', word.rstrip())
-        # if len(fileparts) > 1:
-        #     filename = u"".join(fileparts[0:-2])
-        #     fileext = u".%s" % fileparts[-2]
-        # else:
-        #     filename = fileparts[0]
-        #     fileext = u""
         word = re.sub(' ', safechar, word)
-        if replaceumlaut:
-            temp = ''
+        if replaceumlauts:
+            temp = u''
             for c in word:
-                if c in TextFX.phoneticumlauts:
-                    temp += TextFX.phoneticumlauts[c]
+                if c in TextFX.PHONETICUMLAUTS:
+                    temp += TextFX.PHONETICUMLAUTS[c]
                 else:
                     temp += c
             word = temp
-        if replacediacritic:
+        if replacediacritics:
             # canonically decompose the search string so we can "weed out" the diacritical marks
             word = ud.normalize('NFKD', unicode(word))
             # dynamically generate combining marks list
@@ -440,8 +461,8 @@ class TextFX(object):
         if replacegreek:
             temp = ''
             for c in word:
-                if c in TextFX.greekalphabet:
-                    temp += TextFX.greekalphabet[c]
+                if c in TextFX.GREEKALPHABET:
+                    temp += TextFX.GREEKALPHABET[c]
                 else:
                     temp += c
             word = temp
@@ -466,18 +487,29 @@ class FolderStructure(object):
         self.dir = None
         self.tokentable = {}
         self.ruleslist = []
+        self.rulesfilepath = None
+        self.dir = None
 
-    def setrootdir(self, rootdir):
+    def initialize(self, rootdir, rulesfilepath):
         '''
         Set C{self.dir} to C{rootdir} to be used in processing later on.
         @param rootdir: an existing directory relative to C{os.curdir} 
             or as absolute path
         @type rootdir: C{string}
+        @param rulesfilepath: path to rules.py
+        @type rulesfilepath: C{string}
         '''
-        if os.path.exists(os.path.abspath(rootdir)):
-            self.dir = rootdir
+        absrootdir = os.path.abspath(rootdir)
+        if os.path.exists(absrootdir):
+            self.dir = absrootdir
         else:
-            raise CLIError("path at '%s' doesn't exist" % rootdir)
+            raise CLIError("Destination root not found at path '%s'" % absrootdir)
+        rulesfileabspath = os.path.abspath(rulesfilepath)
+        if os.path.exists(rulesfileabspath):
+            self.rulesfilepath = rulesfileabspath
+        else:
+            raise CLIError("Rules file not found at path '%s'" % rulesfileabspath)
+        self._fillruleslist()
         
     def _getauthorname(self):
         result = None
@@ -514,8 +546,13 @@ class FolderStructure(object):
         spaces2 = spaces + spaces
         if verbose > 0:
             print "Listing token table..."
+            print
             print "Format:"
             print "%sdatum\n%sform1\n%sform2\n%s..." % (spaces, spaces2, spaces2, spaces2)
+            print "Usage:"
+            print "%sDatum" % (spaces)
+            print "%sDatumAsForm1" % (spaces)
+            print "%sDatumAsForm2" % (spaces)
         for k, v in self.tokentable.iteritems():
             print 
             print "%s" % k,
@@ -552,8 +589,8 @@ class FolderStructure(object):
         pluginnametokens['entered'] = pluginname
         pluginnametokens['cleaned'] = TextFX.sanitize(
             pluginname, safechar='', 
-            replaceumlaut=True, 
-            replacediacritic=True, 
+            replaceumlauts=True, 
+            replacediacritics=True, 
             replacegreek=True, 
             allowedchars=' ')
         pluginnametokens['identifier'] = TextFX.tocamelcase(pluginnametokens['cleaned'], True)
@@ -570,8 +607,8 @@ class FolderStructure(object):
             authornametokens['entered'] = _authorname
             authornametokens['cleaned'] = TextFX.sanitize(
                 _authorname, safechar='', 
-                replaceumlaut=True, 
-                replacediacritic=True, 
+                replaceumlauts=True, 
+                replacediacritics=True, 
                 replacegreek=True, 
                 allowedchars=' ')
             authornametokens['identifier'] = TextFX.tocamelcase(_authorname, True)
@@ -583,8 +620,8 @@ class FolderStructure(object):
             orgnametokens['entered'] = orgname
             orgnametokens['cleaned'] = TextFX.sanitize(
                 orgname, safechar='', 
-                replaceumlaut=True, 
-                replacediacritic=True, 
+                replaceumlauts=True, 
+                replacediacritics=True, 
                 replacegreek=True, 
                 allowedchars=' ')
             orgnametokens['identifier'] = TextFX.tocamelcase(orgname, True)
@@ -610,55 +647,50 @@ class FolderStructure(object):
         timetokens['secondssinceepoch'] = time.strftime('%s')
         self.tokentable['time'] = timetokens
     
-    def fillruleslist(self, rulesfilepath):
+    def _fillruleslist(self):
         '''
         Parse and evaluate rules.py from the sourcedata dir.
         
         rules.py contains a mapping of search terms to replacement terms,
         on one line each and separated by the regex '\s*=\s*'. The search
         term is found first and then the replacement term follows. 
-        
-        @param rulesfilepath: path to rules.py
-        @type rulesfilepath: C{string}
         '''
-        rulesfilepath = os.path.abspath(rulesfilepath)
+        rulesfileabspath = os.path.abspath(self.rulesfilepath)
         rules = []
-        firstline = True
         lineno = 0
-        if os.path.exists(rulesfilepath):
-            with codecs.open(rulesfilepath, encoding='utf-8') as rulesfile:
+        with codecs.open(rulesfileabspath, encoding='utf-8') as rulesfile:
+            for line in rulesfile:
                 lineno += 1
-                for line in rulesfile:
-                    if line[0] == '#':
-                        if firstline:
-                            # process initialization line
-                            try:
-                                mat = re.search(FolderStructure.INITREGEX, line.strip())
-                                if mat:
-                                    modules = mat.group('modules')
-                                    modules = modules.split(',')
-                                    for module in modules:
-                                        module = module.strip()
-                                        if verbose > 0:
-                                            print "Importing '%s'" % module
-                                        exec "import %s" % module # IGNORE:W0122
-                            except Exception, e: # IGNORE:W0703
-                                print "E: initialiation: %s" % e
-                            firstline = False
-                        else:
-                            # ordinary comment
-                            continue
-                    else:
-                        # no comment
+                if len(str(line)) == 0:
+                    # empty line
+                    continue
+                elif line[0] == '#':
+                    mat = re.search(FolderStructure.INITREGEX, line.strip())
+                    if mat:
+                        # import line
                         try:
+                            modules = mat.group('modules')
+                            modules = modules.split(',')
+                            for module in modules:
+                                module = module.strip()
+                                if verbose > 0:
+                                    print "Importing '%s'" % module
+                                exec "import %s" % module # IGNORE:W0122
+                        except Exception, e: # IGNORE:W0703
+                            print "E: initialiation: %s" % e
+                    else:
+                        # comment
+                        continue
+                else:
+                    # search replace mapping
+                    try:
+                        if re.search(FolderStructure.KVSPLITREGEX, line):
                             search, replace = re.split(FolderStructure.KVSPLITREGEX, line)
                             rules.append((eval(search), eval(replace)))
-                        except Exception, e: # IGNORE:W0703
-                            print "E: bogus value at line %d: %s" % (lineno, e)
-                            continue
-            self.ruleslist = rules
-        else:
-            raise CLIError("Rules file not found at path '%s'" % rulesfilepath)
+                    except Exception, e: # IGNORE:W0703
+                        print "E: at line %d: %s" % (lineno, e)
+                        continue
+        self.ruleslist = rules
         return len(rules)
     
     def _processname(self, dirpath, fileordirname, force):
@@ -711,12 +743,17 @@ class FolderStructure(object):
         '''
         if not self.dir:
             raise RuntimeError('E: self.dir cannot be None. Set dir via self.setrootdir() first.')
+        rulesfilename = os.path.basename(self.rulesfilepath)
+        try:
+            os.remove(os.path.join(self.dir, rulesfilename))
+        except OSError:
+            pass
         for dirpath, dirnames, filenames in os.walk(self.dir):
             for somedir in dirnames:
                 self._processname(dirpath, somedir, force)
             for somefile in filenames:
                 if somefile in FolderStructure.HIDDENFILES:
-                    continue
+                    continue                    
                 self._processname(dirpath, somefile, force)
         return True
     
@@ -727,46 +764,103 @@ class FolderStructure(object):
         if os.path.exists(filepath) and len(self.ruleslist) > 0:
             if verbose > 0:
                 print "Processing '%s'" % filepath
-            #with codecs.open(filepath, 'rw', encoding='utf-8', buffering=0) as curfile:
-            #    for line in curfile:
-            #        for search, replace in self.ruleslist:
-            #            if re.search(search, line):
-            #                curfile.write(re.sub(search, replace, line))
-            for line in fileinput.input(filepath, inplace=1):
-                replaceline = line
-                matches = re.findall(FolderStructure.TOKENREGEX, line)
-                if len(matches) > 0:
-                    for mat in matches:
-                        if 'As' in mat:
-                            _mat = mat.split('As')
-                            token = _mat[0].lower()
-                            form = _mat[1].lower()
-                        else:
-                            token = mat.lower()
-                            form = ''
-                        try:
-                            replace = self.tokentable[token][form]
-                            replaceline = re.sub("<%s>" % mat, replace, replaceline, flags=re.UNICODE)
-                        except KeyError:
-                            # can't use "print" here, since it would end up in the written replaceline
-                            pass
-                for search, replace in self.ruleslist:
-                    if re.search(search, line):
-                        replaceline = re.sub(search, replace, replaceline, flags=re.UNICODE)
-                # Using the fileinput module, we can perform inplace replacement 
-                # of lines as they are parsed. This is done by re-routing stdout, 
-                # so if we use the print statement it is going to end up in the 
-                # processed file.
-                print replaceline,
+            # rename this file to filename.bak
+            backupfilename = '%s%s%s' % (filename, os.extsep, "bak")
+            backupfilepath = os.path.join(dirpath, backupfilename)
+            # remove filename.bak from last run if it is present
+            try: 
+                os.remove(backupfilepath)
+            except OSError: 
+                pass
+            os.rename(filepath, backupfilepath)
+            with codecs.open(filepath, mode='w', encoding='utf-8') as processedfile:
+                # then open a new file with this file's old name (w/o ".bak")
+                # where we can write the processed lines to
+                with codecs.open(backupfilepath, mode='r', encoding='utf-8') as curfile:
+                    for line in curfile:
+                        replaceline = line
+                        matches = re.findall(FolderStructure.TOKENREGEX, line)
+                        if len(matches) > 0:
+                            for mat in matches:
+                                if 'As' in mat:
+                                    _mat = mat.split('As')
+                                    token = _mat[0].lower()
+                                    form = _mat[1].lower()
+                                else:
+                                    token = mat.lower()
+                                    form = ''
+                                try:
+                                    replace = self.tokentable[token][form]
+                                    replaceline = re.sub("<%s>" % mat, replace, replaceline, flags=re.UNICODE)
+                                except KeyError:
+                                    # can't use "print" here, since it would end up in the written replaceline
+                                    pass
+                        for search, replace in self.ruleslist:
+                            if re.search(search, line):
+                                replaceline = re.sub(search, replace, replaceline, flags=re.UNICODE)
+                        processedfile.write(replaceline)
+            # done with the backup file, remove it
+            os.remove(backupfilepath)
+            #for line in fileinput.input(filepath, inplace=1, mode='U'):
+            #    replaceline = line
+            #    matches = re.findall(FolderStructure.TOKENREGEX, line)
+            #    if len(matches) > 0:
+            #        for mat in matches:
+            #            if 'As' in mat:
+            #                _mat = mat.split('As')
+            #                token = _mat[0].lower()
+            #                form = _mat[1].lower()
+            #            else:
+            #                token = mat.lower()
+            #                form = ''
+            #            try:
+            #                replace = self.tokentable[token][form]
+            #                replaceline = re.sub("<%s>" % mat, replace, replaceline, flags=re.UNICODE)
+            #            except KeyError:
+            #                # can't use "print" here, since it would end up in the written replaceline
+            #                pass
+            #    for search, replace in self.ruleslist:
+            #        if re.search(search, line):
+            #            replaceline = re.sub(search, replace, replaceline, flags=re.UNICODE)
+            #    # Using the fileinput module, we can perform inplace replacement 
+            #    # of lines as they are parsed. This is done by re-routing stdout, 
+            #    # so if we use the print statement it is going to end up in the 
+            #    # processed file.
+            #    print replaceline,
         return True
         
-    def processcontents(self):
-        '''Replace tokens in file contents based on rules.py'''
+    def processcontents(self, exclude=None):
+        '''
+        Replace tokens in file contents based on rules.py
+        
+        @param exclude: if filename (incl. ext) matches this regex, 
+                        the file is excluded from being processed
+        @type exclude: C{string}
+        '''
         for dirpath, dirnames, filenames in os.walk(self.dir): # IGNORE:W0612 #@UnusedVariable
             for somefile in filenames:
+                if exclude and re.match(exclude, somefile, re.UNICODE):
+                    continue
                 self._processcontent(dirpath, somefile)
         return True
     
+def _system(cmd, args=None):
+    '''
+    Replacement for `cmd` statements.
+    
+    @param cmd: a shell command line
+    @type cmd: C{string}
+    @param args: a list of arguments that 
+                 will be expanded in cmd 
+                 starting with $0
+    @type args: C{list}
+    '''
+    if args is None:
+        args = [cmd]
+    else:
+        args = [cmd]+args
+    out, err = Popen(args, stdout=PIPE, shell=True).communicate()
+    return (out, err)
     
 def main(argv=None): # IGNORE:C0111
     if isinstance(argv, list):
@@ -795,13 +889,14 @@ USAGE
         # Setup argument parser
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
         # flags (optional)
-        parser.add_argument('-l', '--listtokens', dest='listtokens', action="store_true", help="list available tokens and variations and exit.")
+        parser.add_argument('-l', '--listtokens', dest='listtokens', action="store_true", help="list available tokens + forms and exit.")
         parser.add_argument("-v", "--verbose", dest="verbose", action="count", help="set verbosity level [default: %(default)s]")
         parser.add_argument('-V', '--version', action='version', version=program_version_message)
         parser.add_argument('-f', '--force', dest='overwrite', action="store_true", help="overwrite existing target folders [default: %(default)s]")
-        parser.add_argument('-c', '--createdir', dest='createdir', action="store_true", help="create dir at destination path if it doesn't exist [default: %(default)s]")
-        parser.add_argument('-t', '--type', dest="typ", help="the type of plugin to create. Determines which subfolder is used from the sourcedata dir [default: %(default)s]")
+        parser.add_argument('-c', '--createdir', dest='createdir', action="store_true", help="create destination path if it doesn't exist [default: %(default)s]")
+        parser.add_argument('-t', '--type', dest="typ", help="type of plugin to create. Determines which subfolder is used from the sourcedata dir [default: %(default)s]")
         parser.add_argument('-s', '--sourcedata', dest='src', help="path to dir with source folder structures. Must have one folder structure per plugin type. You can also set the environment variable 'C4DPLUGWIZ_DATA'. [default: %(default)s]")
+        parser.add_argument('-r', '--rulesfile', dest='rulesfile', metavar='str', help="rules file name. If None, looks for a file 'rules.py' local to each plugin type's folder structure. If this is None, falls back to looking in the sourcedata dir. [default: %(default)s]")
         parser.add_argument('-a', '--author', dest='author', help="name of the plugin author to be used in file/dir name replacements. You can also set the environment variable 'C4DPLUGWIZ_AUTHORNAME'. [default: %(default)s]")
         parser.add_argument('-o', '--org', dest='org', help="name of the organization the author belongs to, used for file/dir name replacements. You can also set the environment variable 'C4DPLUGWIZ_ORGNAME'. [default: %(default)s]")
         # positional arguments (required)
@@ -841,14 +936,29 @@ USAGE
         createdir = args.createdir
         author = args.author
         org = args.org
-        
-        source = os.path.join(sourcedatapath, typ)
-        rulesfilepath = os.path.join(sourcedatapath, 'rules.py')
+        rulesfile = args.rulesfile
 
         if verbose > 0:
             print "Verbose mode on"
             print "Plugin %s: '%s'" % (pluginid, name)
-            print            
+            print     
+                    
+        source = os.path.join(sourcedatapath, typ)
+
+        # precedence for rules file:
+        # 1. path supplied by CLI arg
+        # 2. per plugin type (local)
+        # 3. per sourcedata dir (global)
+        if rulesfile and os.path.exists(rulesfile):
+            rulesfilepath = rulesfile
+        else:
+            rulesfile = 'rules.py'
+            rulesfilepath = os.path.join(sourcedatapath, typ, rulesfile)
+            if not os.path.exists(rulesfilepath):
+                rulesfilepath = os.path.join(sourcedatapath, rulesfile)
+        if verbose > 0:
+            print "Using rules from '%s'" % rulesfilepath
+       
 
         if not os.path.exists(sourcedatapath):
             raise CLIError("sourcedata path doesn't exist ('%s')" % sourcedatapath)
@@ -874,22 +984,18 @@ USAGE
                         raise CLIError("creating parent dir for destination '%s'  failed. skipping..." % destpath)
                 else:
                     raise CLIError("destination '%s' doesn't exist. skipping..." % destpath)
-            
-            # Steps (needed to re-order them a little)
-
+                
+            # Steps
             fs = FolderStructure()
             
-            # 2a. Pre-process tokens and rules.py
+            # 1. Create and fill token table
             fs.filltokentable(pluginid, name, author, org)
-            
             if listtokens:
-                # print token list to stdout and exit
+                # print token table to stdout and exit
                 fs.printtokentable()
                 return 0
-            
-            fs.fillruleslist(rulesfilepath)
-                        
-            # 1. Copy folder structure(s)
+                                    
+            # 2. Copy folder structure(s)
             if overwrite and os.path.exists(namedfulldestpath):
                 if verbose > 0:
                     print "Overwriting dir at '%s'" % namedfulldestpath
@@ -901,11 +1007,15 @@ USAGE
                     if 'exists' in str(e):
                         raise CLIError("Dir exists: '%s'\nUse -f/--force to overwrite" % fulldestpath)          
 
-            fs.setrootdir(namedfulldestpath)
-            # 2b. Do file name replacement
+            # Initialize the folder structure. This:
+            # a) checks if the root destination and rules.py exist
+            # b) processes rules.py and creates and fills the rules list
+            fs.initialize(namedfulldestpath, rulesfilepath)
+
+            # 3. Do file name replacements
             fs.processnames(force=overwrite)
             
-            # 3. Do file content replacement
+            # 4. Do file content replacements
             fs.processcontents()
             
         return 0
@@ -924,31 +1034,25 @@ USAGE
 
 if __name__ == "__main__":
     '''Command line options.''' # IGNORE:W0105
-    if DEBUG:
-        #print TextFX.sanitize(u'äÄÖndréRülΩçœ', replaceumlauts=True, replacediacritics=True, replacegreek=True)
-        os.environ['C4DPLUGWIZ_DATA'] = "../unittests/data"
-        #os.environ['C4DPLUGWIZ_AUTHORNAME'] = u"André Berg"
-        os.environ['C4DPLUGWIZ_ORGNAME'] = "Berg Media"
-        plugintype = "tagplugin"
-        #sys.argv.append("-h")
-        #sys.argv.append("-l")
-        sys.argv.append("-v")
-        sys.argv.append("-c")
-        sys.argv.append("-t")
-        sys.argv.append(plugintype)
-        sys.argv.append("-f")
-        sys.argv.append("1000001")
-        sys.argv.append("Andre's Super Plugin")
-        sys.argv.append("./testrun")
-        #sys.argv.append("./testrun2")
     if TESTRUN:
         import doctest
         doctest.testmod()
+    if DEBUG:
+        _system('rm -rfv ./testrun')
+        #os.environ['C4DPLUGWIZ_DATA'] = "../unittests/data"
+        os.environ['C4DPLUGWIZ_AUTHORNAME'] = "Andre Berg"
+        os.environ['C4DPLUGWIZ_ORGNAME'] = "Berg Media"
+        plugintype = "commandplugin"
+        main(["-v", "-c", "--type=%s" % plugintype, "-f", "1000002", "Andre's Super Plugin", "./testrun"])
+        main(['-l'])
+        main(['-h'])
+        sys.exit(0)
     if PROFILE:
         import cProfile
         import pstats
+        _system('rm -rfv ./testrun')
         os.environ['C4DPLUGWIZ_DATA'] = "../unittests/data"
-        os.environ['C4DPLUGWIZ_AUTHORNAME'] = u"Andre Berg"
+        os.environ['C4DPLUGWIZ_AUTHORNAME'] = "Andre Berg"
         os.environ['C4DPLUGWIZ_ORGNAME'] = "Berg Media"
         profile_filename = 'c4dplugwiz_profile.pstats'
         cProfile.run('main(["-v", "-c", "--type=tagplugin", "-f", "1000001", "My Plugin", "./testrun"])', profile_filename)

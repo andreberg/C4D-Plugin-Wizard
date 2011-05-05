@@ -36,8 +36,18 @@ doc/
 # CodePro stuff
 
 coverage.txt
+.coverage
 coverage/
+htmlcov
 
 # Python stuff
 
 *.pyc
+
+# Project stuff
+
+testrun
+profile_*.*
+*graph.png
+*.pstats
+

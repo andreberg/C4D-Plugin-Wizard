@@ -1,3 +1,8 @@
-#Sat Apr 30 04:50:01 CEST 2011
+#Thu May 05 15:57:20 CEST 2011
 eclipse.preferences.version=1
 encoding//src/c4dplugwiz.py=utf-8
+encoding//src/c4dplugwiz_data/rules.py=utf-8
+encoding//unittests/c4dplugwiz_tests.py=utf-8
+encoding//unittests/data/expected/contenttests/testfile1.py=utf-8
+encoding//unittests/data/output/contenttests/testfile1.py=utf-8
+encoding//unittests/data/rules.py=utf-8
