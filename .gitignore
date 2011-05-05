@@ -50,4 +50,5 @@ testrun
 profile_*.*
 *graph.png
 *.pstats
+unittests/data/output
 
