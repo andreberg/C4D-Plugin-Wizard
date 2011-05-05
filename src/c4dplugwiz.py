@@ -2,7 +2,7 @@
 # encoding: utf-8
 # pylint: disable-msg=W0603
 '''
-c4dplugwiz -- CINEMA 4D Python plugin wizard
+B{c4dplugwiz -- CINEMA 4D Python plugin wizard}
 
 c4dplugwiz is a command line tool and a template system 
 that helps with creating python plugins for CINEMA 4D. 
@@ -57,7 +57,8 @@ per datum point and the best way to find out about those
 is to use L{FolderStructure.printtokentable()} or simply 
 pass the C{-l/--listtokens} flag to the CLI.
 
-Currently, the following data points are used: 
+Currently, the following data points can be used:
+ 
     - C{ID}            I{Supplied by user with a CLI argument}
     - C{PluginName}    I{Supplied by user with a CLI argument}
     - C{AuthorName}    I{Supplied by user with a CLI option, or an environment variable}
@@ -142,7 +143,7 @@ from subprocess import Popen, PIPE
 import shutil as su
 import codecs
 
-__all__ = ['FolderStructure', 'TextFX', 'main', '_system']
+__all__ = ['FolderStructure', 'TextFX']
 __version__ = 0.4
 __date__ = '2011-04-30'
 __updated__ = '2011-05-05'
@@ -164,10 +165,7 @@ class CLIError(Exception):
         return self.msg
 
 class TextFX(object):
-    '''
-    Methods for processing and transforming text.
-    Note: currently Unicode support is rather lax.
-    '''
+    '''Methods for processing and transforming text.'''
     GREEKCHARS = {
         'alpha':'a',
         'beta':'b',
@@ -266,11 +264,16 @@ class TextFX(object):
     def precompunichars(word, canonical=True):
         '''
         Precompose Unicode character sequences, using either canonical 
-        or nominal mapping, e.g. LATIN SMALL LETTER E (U+0065) + COMBINING ACUTE ACCENT (U+0301) 
-        becomes LATIN SMALL LETTER E WITH ACUTE (U+00E9). If canonical 
-        is True combining diacritical marks will be mapped to their 
-        non-combining forms when they cannot be combined with the letter 
-        preceeding the position.
+        or nominal mapping. 
+        E.g. C{LATIN SMALL LETTER E} (C{U+0065}) + C{COMBINING ACUTE ACCENT} (C{U+0301}) 
+        becomes C{LATIN SMALL LETTER E WITH ACUTE} (C{U+00E9}). 
+        
+        @param word: the unicode word to preccompose
+        @type word: C{unicode}
+        @param canonical: if C{True} combining diacritical marks 
+            will be mapped to their non-combining forms when they 
+            cannot be combined with the letter preceeding the position.
+        @type canonical: C{bool}
         '''
         if not isinstance(word, unicode):
             raise TypeError("param 'word': expected unicode, got %s" % type(word))
@@ -290,11 +293,16 @@ class TextFX(object):
     def decompunichars(word, canonical=True):
         '''
         Decompose Unicode character sequences using either canonical 
-        or nominal mapping, e.g. LATIN SMALL LETTER E WITH ACUTE (U+00E9) 
-        becomes LATIN SMALL LETTER E (U+0065) + COMBINING ACUTE ACCENT (U+0301). 
-        If canonical is True non-combining diacritical marks will be 
-        mapped to their combining forms and maybe combined with the letter 
-        preceeding the position.
+        or nominal mapping. 
+        E.g. C{LATIN SMALL LETTER E WITH ACUTE} (C{U+00E9}) becomes 
+        C{LATIN SMALL LETTER E} (C{U+0065}) + C{COMBINING ACUTE ACCENT} (C{U+0301}). 
+        
+        @param word: the unicode word to decompose
+        @type word: C{unicode}
+        @param canonical: if C{True} non-combining diacritical marks 
+            will be mapped to their combining forms and maybe combined 
+            with the letter preceeding the position.
+        @type canonical: C{bool}
         '''
         if not isinstance(word, unicode):
             raise TypeError("param 'word': expected unicode, got %s" % type(word))
@@ -525,9 +533,6 @@ class FolderStructure(object):
                     if err: print err
                     fulluser = out
                 elif 'win' in sys.platform:
-                    #import _winreg as wreg # IGNORE:F0401 @UnresolvedImport
-                    #key = wreg.OpenKey(wreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Explorer')
-                    #fulluser = wreg.QueryValue(key, 'Logon User Name')
                     import win32api # IGNORE:F0401 @UnresolvedImport
                     fulluser = win32api.GetUserName()
                 result = fulluser.strip() # IGNORE:E1103
@@ -563,12 +568,19 @@ class FolderStructure(object):
          
     def filltokentable(self, pluginid, pluginname, authorname, orgname):
         '''
-        Fill the table of angle bracket ('<...>') tokens.
+        Fill table of angle bracket C{<...>} based tokens.
+        
+        Angle bracket based tokens are tokens where the value
+        can be deferred automatically (to a degree), with as little 
+        user intervention as possible.
+        
+        Examples are date, time and author name determined
+        from the logon environment.
         
         The table consists of a dict of metadata dicts, 
         the latter of which can have multiple entries,
         one for each form the datum can be in. E.g. if
-        the datum is 'AuthorName', it can have a form as
+        the datum is C{AuthorName}, it can have a form as
         identifier, as abbreviation, etc.
         
         @param pluginid: unique ID for the plugin
@@ -649,11 +661,11 @@ class FolderStructure(object):
     
     def _fillruleslist(self):
         '''
-        Parse and evaluate rules.py from the sourcedata dir.
+        Parse and evaluate the rules file.
         
-        rules.py contains a mapping of search terms to replacement terms,
-        on one line each and separated by the regex '\s*=\s*'. The search
-        term is found first and then the replacement term follows. 
+        C{rules.py} contains a mapping of search terms to replacement terms,
+        on one line each and separated by the regex C{\s*=\s*}. The search
+        term comes first and then the replacement term follows. 
         '''
         rulesfileabspath = os.path.abspath(self.rulesfilepath)
         rules = []
@@ -730,7 +742,7 @@ class FolderStructure(object):
         
         A magic token has the form C{<Value>} or C{<ValueAsForm>} where
         C{Value} is the value of an entry in the token table and C{Form} 
-        a conjugate of that value. E.g. C{Value} might be "PluginName" 
+        a conjugate of that value. E.g. C{Value} might be C{PluginName} 
         which would result in the plugin's name as entered by the user.
         C{PluginNameAsIdentifier} is C{PluginName} taking the form of an 
         C{Identifier}, meaning it has invalid characters replaced, 
@@ -801,32 +813,6 @@ class FolderStructure(object):
                         processedfile.write(replaceline)
             # done with the backup file, remove it
             os.remove(backupfilepath)
-            #for line in fileinput.input(filepath, inplace=1, mode='U'):
-            #    replaceline = line
-            #    matches = re.findall(FolderStructure.TOKENREGEX, line)
-            #    if len(matches) > 0:
-            #        for mat in matches:
-            #            if 'As' in mat:
-            #                _mat = mat.split('As')
-            #                token = _mat[0].lower()
-            #                form = _mat[1].lower()
-            #            else:
-            #                token = mat.lower()
-            #                form = ''
-            #            try:
-            #                replace = self.tokentable[token][form]
-            #                replaceline = re.sub("<%s>" % mat, replace, replaceline, flags=re.UNICODE)
-            #            except KeyError:
-            #                # can't use "print" here, since it would end up in the written replaceline
-            #                pass
-            #    for search, replace in self.ruleslist:
-            #        if re.search(search, line):
-            #            replaceline = re.sub(search, replace, replaceline, flags=re.UNICODE)
-            #    # Using the fileinput module, we can perform inplace replacement 
-            #    # of lines as they are parsed. This is done by re-routing stdout, 
-            #    # so if we use the print statement it is going to end up in the 
-            #    # processed file.
-            #    print replaceline,
         return True
         
     def processcontents(self, exclude=None):
