@@ -1,9 +1,9 @@
 //*********************************************************************\
 // File name        : c4d_symbols.h
 // Description      : symbol definition file for the plugin 
-// Created at       : 
+// Created at       : ${TM_YEAR}
 // Created by       : Resource editor
-// Modified by      : 
+// Modified by      : <AuthorNameAsIdentifier>
 //*********************************************************************/
 // WARNING : Only edit this file, if you exactly know what you are doing.
 // WARNING : The comments are important, too.

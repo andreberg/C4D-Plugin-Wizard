@@ -1,7 +1,7 @@
 //*********************************************************************\
 // File name        : c4d_symbols.h
 // Description      : symbol definition file for the plugin 
-// Created at       : 
+// Created at       : <Date>
 // Created by       : Resource editor
 // Modified by      : 
 //*********************************************************************/
@@ -11,7 +11,7 @@
 enum
 {
   _FIRST_ELEMENT_      = 10000,
-  // Dialog definitions of IDD_DIALOG_SETTINGS start here
+  // Dialog definitions of <PluginNameAsIdentifier> start here
   <PluginNameAsIdentifier>,
   IDC_BUTTON_CANCEL,
   IDC_BUTTON_DOIT,
@@ -19,7 +19,7 @@ enum
   IDC_GROUP_SETTINGS,
   IDC_GROUP_BUTTONS,
   IDC_DUMMY,
-  // Dialog definitions of IDD_DIALOG_SETTINGS end here
+  // Dialog definitions of <PluginNameAsIdentifier> end here
 
 
 // End of symbol definition

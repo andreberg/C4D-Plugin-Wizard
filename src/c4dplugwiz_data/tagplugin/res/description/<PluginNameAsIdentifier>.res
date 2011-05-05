@@ -1,6 +1,6 @@
-CONTAINER IDD_TAG_SETTINGS
+CONTAINER <PluginNameAsIdentifier>
 {
-  NAME IDD_TAG_SETTINGS;
+  NAME <PluginNameAsIdentifier>;
   INCLUDE Texpression;
 
   GROUP ID_TAGPROPERTIES
