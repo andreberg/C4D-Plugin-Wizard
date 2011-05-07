@@ -12,16 +12,17 @@ a data repository to a destination specified by the user.
 Definition
 ==========
 
-A I{wizard} or I{assistant} is defined to be some process
+A I{wizard} or I{assistant} is defined to be any process
 that is helpful in some creational undertaking, providing
 means to a customizable starting point and easing the user 
 into the next steps towards some goal.
 
 Here, the goal is the creation of Python plugins, and the 
 means are blueprint folder structures with files, utilizing
-a magic token based templating system. The tokens for this
-templating system can be used inside the contents of a file
-as well as inside the name of a file. 
+a magic token and rules based templating system. 
+Embedding tokens and search terms within the contents and 
+names of files will then result in text replacements with 
+the token's or search term's associated value. 
 
 How It Works
 ============
@@ -94,8 +95,8 @@ well as lines that do not have a format of C{<I{key}>\s*=\s*<I{value}>}
 where C{<I{...}>} stands for a variable term and C{\s*} stands for zero
 or more spaces. 
 
-Tips For Creating rules.py
-==========================
+Tips For Creating The Rules File
+================================
 
 If you need a value for a key to span multiple lines, assign the 
 value in I{raw text} form, e.g. between single, double or tripple 
@@ -148,8 +149,8 @@ __version__ = 0.4
 __date__ = '2011-04-30'
 __updated__ = '2011-05-05'
 
-DEBUG = 0
-TESTRUN = 0
+DEBUG = 1
+TESTRUN = 1
 PROFILE = 0 or (os.environ.has_key('BMProfileLevel') and os.environ['BMProfileLevel'] > 0)
 
 verbose = 0
@@ -166,7 +167,7 @@ class CLIError(Exception):
 
 class TextFX(object):
     '''Methods for processing and transforming text.'''
-    GREEKCHARS = {
+    greekchars = {
         'alpha':'a',
         'beta':'b',
         'chi':'c',
@@ -205,7 +206,7 @@ class TextFX(object):
         'xi':'x',
         'zeta':'z'    
     }
-    GREEKTRANS = { # IGNORE:W0109
+    greektrans = { # IGNORE:W0109
         u'α': 'a',  u'Α': 'A', 
         u'β': 'b',  u'Β': 'B', 
         u'γ': 'g',  u'Γ': 'G', 
@@ -231,7 +232,7 @@ class TextFX(object):
         u'Ψ': 'ps', u'Ψ': 'Ps', 
         u'ω': 'o',  u'Ω': 'O'        
     }
-    GREEKALPHABET = {
+    greekalphabet = {
         u'α': 'alpha', u'β': 'beta', u'γ': 'gamma', u'δ': 'delta', u'ε': 'epsilon',
         u'ζ': 'zeta', u'η': 'eta', u'θ': 'theta', u'ι': 'iota', u'κ': 'kappa', 
         u'λ': 'lambda', u'μ': 'mu', u'ν': 'nu', u'ξ': 'xi', u'ο': 'omicron', 
@@ -244,7 +245,7 @@ class TextFX(object):
         u'Ρ': 'Rho', u'Σ': 'Sigma', u'Τ': 'Tau', u'Υ': 'Upsilon', u'Φ': 'Phi', 
         u'Χ': 'Chi', u'Ψ': 'Psi', u'Ω': 'Omega'
     }
-    PHONETICUMLAUTS = {
+    phoneticumlauts = {
         u'\xe4': 'ae',
         u'\xe6': 'ae',
         u'\xfc': 'ue',
@@ -261,7 +262,7 @@ class TextFX(object):
         super(TextFX, self).__init__()
         
     @staticmethod
-    def precompunichars(word, canonical=True):
+    def precompunicode(word, canonical=True):
         '''
         Precompose Unicode character sequences, using either canonical 
         or nominal mapping. 
@@ -290,7 +291,7 @@ class TextFX(object):
         return result
 
     @staticmethod
-    def decompunichars(word, canonical=True):
+    def decompunicode(word, canonical=True):
         '''
         Decompose Unicode character sequences using either canonical 
         or nominal mapping. 
@@ -362,6 +363,7 @@ class TextFX(object):
     def splitcamelcase(word):
         '''
         Split a CamelCaseString into ['Camel', 'Case', 'String'].
+        
         @param word: the string to split
         @type word: C{string}
         '''
@@ -444,8 +446,8 @@ class TextFX(object):
         if replaceumlauts:
             temp = u''
             for c in word:
-                if c in TextFX.PHONETICUMLAUTS:
-                    temp += TextFX.PHONETICUMLAUTS[c]
+                if c in TextFX.phoneticumlauts:
+                    temp += TextFX.phoneticumlauts[c]
                 else:
                     temp += c
             word = temp
@@ -469,8 +471,8 @@ class TextFX(object):
         if replacegreek:
             temp = ''
             for c in word:
-                if c in TextFX.GREEKALPHABET:
-                    temp += TextFX.GREEKALPHABET[c]
+                if c in TextFX.greekalphabet:
+                    temp += TextFX.greekalphabet[c]
                 else:
                     temp += c
             word = temp
@@ -481,14 +483,16 @@ class FolderStructure(object):
     '''
     Represents the folder structure for one type of plugin.
     
-    Provides methods for token replacements in the names and 
-    content of files contained within the folder structure.
+    Provides methods for replacements in the names and 
+    contents of files contained within a folder structure.
     '''
-    TOKENREGEX      = re.compile(r'<(?P<token>\w+?)>')
-    TOKENXFORMREGEX = re.compile(r'<(?P<token>\w+?)As(?P<form>\w+?)>')
-    INITREGEX       = re.compile(r'#\s*import (?P<modules>[\w, ]+)')
-    KVSPLITREGEX    = re.compile(r'\s*=\s*')
-    HIDDENFILES     = ['.DS_Store', 'desktop.ini']
+    tokencharstart  = '<'
+    tokencharend    = '>'
+    tokenregex      = re.compile(r'%s(?P<token>\w+?)%s' % (tokencharstart, tokencharend))
+    tokenxformregex = re.compile(r'%s(?P<token>\w+?)As(?P<form>\w+?)%s' % (tokencharstart, tokencharend))
+    initregex       = re.compile(r'#\s*import (?P<modules>[\w, ]+)')
+    kvsplitregex    = re.compile(r'\s*=\s*')
+    hiddenfiles     = ['.DS_Store', 'desktop.ini']
     
     def __init__(self):
         super(FolderStructure, self).__init__()
@@ -542,22 +546,21 @@ class FolderStructure(object):
     
     def printtokentable(self, indent=3):
         '''
-        Print datum and form entries of the token table.
+        Print data entries of the token table, including forms.
         
         @param indent: how many spaces for indentation
         @type indent: C{int}
         '''
         spaces = " " * indent
         spaces2 = spaces + spaces
-        if verbose > 0:
-            print "Listing token table..."
-            print
-            print "Format:"
-            print "%sdatum\n%sform1\n%sform2\n%s..." % (spaces, spaces2, spaces2, spaces2)
-            print "Usage:"
-            print "%sDatum" % (spaces)
-            print "%sDatumAsForm1" % (spaces)
-            print "%sDatumAsForm2" % (spaces)
+        print "Listing token table..."
+        print
+        print "Format:"
+        print "%sdatum\n%sform1\n%sform2\n%s..." % (spaces, spaces2, spaces2, spaces2)
+        print "Usage:"
+        print "%sDatum" % (spaces)
+        print "%sDatumAsForm1" % (spaces)
+        print "%sDatumAsForm2" % (spaces)
         for k, v in self.tokentable.iteritems():
             print 
             print "%s" % k,
@@ -568,7 +571,7 @@ class FolderStructure(object):
          
     def filltokentable(self, pluginid, pluginname, authorname, orgname):
         '''
-        Fill table of angle bracket C{<...>} based tokens.
+        Create and fill table of angle bracket C{<...>} based magic tokens.
         
         Angle bracket based tokens are tokens where the value
         can be deferred automatically (to a degree), with as little 
@@ -661,7 +664,7 @@ class FolderStructure(object):
     
     def _fillruleslist(self):
         '''
-        Parse and evaluate the rules file.
+        Parse the rules file and build the rules list.
         
         C{rules.py} contains a mapping of search terms to replacement terms,
         on one line each and separated by the regex C{\s*=\s*}. The search
@@ -677,7 +680,7 @@ class FolderStructure(object):
                     # empty line
                     continue
                 elif line[0] == '#':
-                    mat = re.search(FolderStructure.INITREGEX, line.strip())
+                    mat = re.search(FolderStructure.initregex, line.strip())
                     if mat:
                         # import line
                         try:
@@ -696,8 +699,8 @@ class FolderStructure(object):
                 else:
                     # search replace mapping
                     try:
-                        if re.search(FolderStructure.KVSPLITREGEX, line):
-                            search, replace = re.split(FolderStructure.KVSPLITREGEX, line)
+                        if re.search(FolderStructure.kvsplitregex, line):
+                            search, replace = re.split(FolderStructure.kvsplitregex, line)
                             rules.append((eval(search), eval(replace)))
                     except Exception, e: # IGNORE:W0703
                         print "E: at line %d: %s" % (lineno, e)
@@ -708,8 +711,20 @@ class FolderStructure(object):
     def _processname(self, dirpath, fileordirname, force):
         filepath = os.path.join(dirpath, fileordirname)
         filename, fileext = os.path.splitext(fileordirname)
-        matchedtokens = re.findall(FolderStructure.TOKENREGEX, filename)
         newpath = None
+        newname = None
+        # process rules
+        replaced = False
+        for search, replace in self.ruleslist:
+            if re.search(search, filename):
+                filename = re.sub(search, replace, filename, flags=re.UNICODE)
+                replaced = True
+        if replaced:
+            newname = filename + fileext
+            newpath = os.path.join(dirpath, newname)
+            replaced = False
+        # process tokens
+        matchedtokens = re.findall(FolderStructure.tokenregex, filename)
         if len(matchedtokens) > 0:
             newname = ''
             for mat in matchedtokens:
@@ -723,6 +738,7 @@ class FolderStructure(object):
                 newname += self.tokentable[token][form]
             newname += fileext
             newpath = os.path.join(dirpath, newname)
+        # do the actual renaming (if needed)
         if newpath:
             if os.path.exists(newpath):
                 if force:
@@ -738,7 +754,7 @@ class FolderStructure(object):
     
     def processnames(self, force=False):
         '''
-        Replace magic tokens in file and dir names.
+        Do magic token and rule based replacements in file and dir names.
         
         A magic token has the form C{<Value>} or C{<ValueAsForm>} where
         C{Value} is the value of an entry in the token table and C{Form} 
@@ -764,14 +780,14 @@ class FolderStructure(object):
             for somedir in dirnames:
                 self._processname(dirpath, somedir, force)
             for somefile in filenames:
-                if somefile in FolderStructure.HIDDENFILES:
+                if somefile in FolderStructure.hiddenfiles:
                     continue                    
                 self._processname(dirpath, somefile, force)
         return True
     
     def _processcontent(self, dirpath, filename):
         filepath = os.path.join(dirpath, filename)
-        if filename in FolderStructure.HIDDENFILES:
+        if filename in FolderStructure.hiddenfiles:
             return False
         if os.path.exists(filepath) and len(self.ruleslist) > 0:
             if verbose > 0:
@@ -791,7 +807,7 @@ class FolderStructure(object):
                 with codecs.open(backupfilepath, mode='r', encoding='utf-8') as curfile:
                     for line in curfile:
                         replaceline = line
-                        matches = re.findall(FolderStructure.TOKENREGEX, line)
+                        matches = re.findall(FolderStructure.tokenregex, line)
                         if len(matches) > 0:
                             for mat in matches:
                                 if 'As' in mat:
@@ -868,7 +884,6 @@ def main(argv=None): # IGNORE:C0111
   Distributed on an "AS IS" basis without warranties
   or conditions of any kind, either express or implied.
 
-USAGE
 ''' % (program_shortdesc, str(__date__))
 
     try:
@@ -928,7 +943,7 @@ USAGE
             print "Verbose mode on"
             print "Plugin %s: '%s'" % (pluginid, name)
             print     
-                    
+
         source = os.path.join(sourcedatapath, typ)
 
         # precedence for rules file:
@@ -941,21 +956,22 @@ USAGE
             rulesfile = 'rules.py'
             rulesfilepath = os.path.join(sourcedatapath, typ, rulesfile)
             if not os.path.exists(rulesfilepath):
-                rulesfilepath = os.path.join(sourcedatapath, rulesfile)
-        if verbose > 0:
-            print "Using rules from '%s'" % rulesfilepath
-       
+                rulesfilepath = os.path.join(sourcedatapath, rulesfile)      
 
         if not os.path.exists(sourcedatapath):
             raise CLIError("sourcedata path doesn't exist ('%s')" % sourcedatapath)
         if not os.path.exists(source):
             raise CLIError("couldn't find a folder structure for plugin type '%s' at '%s'" % (typ, source))
-        
+
+        if verbose > 0:
+            print "  Using source data at '%s'" % sourcedatapath
+            print "Using folder structure '%s'" % source
+            print "      Using rules from '%s'" % rulesfilepath
+            print
+                        
         for destpath in paths:
             if verbose > 0:
                 print "Processing destination '%s' ..." % destpath
-                print "  Using source data at '%s'" % sourcedatapath
-                print "Using folder structure '%s'" % source
                 print
                 
             absdestpath = os.path.abspath(destpath)
@@ -1028,7 +1044,7 @@ if __name__ == "__main__":
         #os.environ['C4DPLUGWIZ_DATA'] = "../unittests/data"
         os.environ['C4DPLUGWIZ_AUTHORNAME'] = "Andre Berg"
         os.environ['C4DPLUGWIZ_ORGNAME'] = "Berg Media"
-        plugintype = "commandplugin"
+        plugintype = "tagplugin"
         main(["-v", "-c", "--type=%s" % plugintype, "-f", "1000002", "Andre's Super Plugin", "./testrun"])
         main(['-l'])
         main(['-h'])

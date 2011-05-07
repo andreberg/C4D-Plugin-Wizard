@@ -209,6 +209,7 @@ class TestFolderStructure(unittest.TestCase):
                 # assert that there are no magic token chars left in any one file name
                 self.assertTrue('<' not in somefile)
                 self.assertTrue('>' not in somefile)
+                self.assertTrue('${' not in somefile)
                 m += 1
         self.assertEqual(n, m, 'number of input files should equal number expected output files')
         
