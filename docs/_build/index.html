@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CINEMA 4D Plugin Wizard &mdash; CINEMA 4D Plugin Wizard 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="CINEMA 4D Plugin Wizard 0.5 documentation" href="#" />
+    <link rel="next" title="About Templates" href="templates.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="templates.html" title="About Templates"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-c4dplugwiz">
+<span id="cinema-4d-plugin-wizard"></span><h1>CINEMA 4D Plugin Wizard<a class="headerlink" href="#module-c4dplugwiz" title="Permalink to this headline">¶</a></h1>
+<p><strong>c4dplugwiz</strong> is a command line tool and a template system 
+that helps with creating python plugins for CINEMA 4D. 
+It works by copying pre-existing folder structures from
+a data repository to a destination specified by the user.</p>
+<div class="section" id="definition">
+<h2>Definition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h2>
+<p>A <em>wizard</em> or <em>assistant</em> is defined to be any process
+that is helpful in some creational undertaking, providing
+means to a customizable starting point and easing the user 
+into the steps towards some goal.</p>
+<p>Here, the goal is the creation of Python plugins, and the 
+means are blueprint folder structures. The files of which, 
+embed within their contents special text that is utilized 
+from a magic token and rules based templating system.</p>
+<p>A <em>blueprint folder structure</em> is defined to be a collection
+of directories and files representing one type of plugin that
+can be created, e.g. tag plugin, command plugin, etc...
+While there usually is a predetermined layout of directories
+and subdirectories for each plugin type (see Py4D docs), the 
+contents of any enclosed files can be determined by the user.</p>
+<p>The <em>source repository</em> is defined to be the path to the parent
+folder that contains all blueprint folder structures.</p>
+</div>
+<div class="section" id="how-it-works">
+<h2>How It Works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
+<p>The user supplies the following data:</p>
+<blockquote>
+<div><ul class="simple">
+<li>plugin ID</li>
+<li>plugin name</li>
+<li>destination path(s)</li>
+<li>author name (optional - see CLI args)</li>
+<li>org name (optional - see CLI args)</li>
+</ul>
+</div></blockquote>
+<p>Processing is then divided into 3 main steps:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Copy blueprint folder structure to destination</li>
+<li>Perform text replacements in file and directory names</li>
+<li>Perform text replacements in file contents</li>
+</ol>
+</div></blockquote>
+<p>1) First, copy the blueprint folder structure corresponding to
+the specified plugin type from the source repository to a destination 
+folder (there can be multiple destinations).</p>
+<p>2) Then, loop through the directories and files of the copied
+folder structure and perform text replacements of magic tokens
+and search terms found within the file and directory names.</p>
+<p>3) Finally, parse the contents of each file within the copied 
+folder structure and perform magic token and rule based text 
+replacements.</p>
+</div>
+<div class="section" id="text-replacements">
+<h2>Text Replacements<a class="headerlink" href="#text-replacements" title="Permalink to this headline">¶</a></h2>
+<p>There are two systems for replacing text:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>magic tokens</li>
+<li>search/replace rules</li>
+</ol>
+</div></blockquote>
+<div class="section" id="magic-tokens">
+<h3>Magic Tokens<a class="headerlink" href="#magic-tokens" title="Permalink to this headline">¶</a></h3>
+<p>A magic token is denoted by the syntax <tt class="docutils literal"><span class="pre">%!Datum!%</span></tt>, where
+<tt class="docutils literal"><span class="pre">Datum</span></tt> is a variable term referring to one piece of data,
+called a datum point. Datum points are generally concerned with
+project relevant metadata (who, what, when - plugin id/name, 
+author/org, date/time).</p>
+<p>Magic tokens can also have alternate forms, which insert a variation
+of the replacement text. The syntax for this is <tt class="docutils literal"><span class="pre">%!DatumAsForm!%</span></tt>. 
+Note the adverb <tt class="docutils literal"><span class="pre">As</span></tt> (case sensitive!), which is used as a separator 
+between the datum point and its form.</p>
+<p>For example, if the datum point <tt class="docutils literal"><span class="pre">%!PluginName!%</span></tt> is found it will
+be replaced by the name of the plugin as supplied by the user.
+If the alternate form <tt class="docutils literal"><span class="pre">%!PluginNameAsIdentifier!%</span></tt> is found, the
+name of the plugin as entered by the user will be sanitized for
+illegal characters and transformed to <em>CamelCase</em> format.</p>
+<p>There are a fixed number of variations per datum point and to find 
+out about those, pass the <tt class="docutils literal"><span class="pre">-l/--list-tokens</span></tt> flag to the CLI.</p>
+<p>Currently, the following datum points can be used:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">ID</span></tt>            <em>supplied by user with a CLI argument</em></li>
+<li><tt class="docutils literal"><span class="pre">PluginName</span></tt>    <em>supplied by user with a CLI argument</em></li>
+<li><tt class="docutils literal"><span class="pre">AuthorName</span></tt>    <em>supplied by user with a CLI option, or an environment variable</em></li>
+<li><tt class="docutils literal"><span class="pre">OrgName</span></tt>       <em>supplied by user with a CLI option, or an environment variable</em></li>
+<li><tt class="docutils literal"><span class="pre">Date</span></tt>          <a href="#id1"><span class="problematic" id="id2">*</span></a>constructed from <tt class="docutils literal"><span class="pre">time.strftime()*</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Time</span></tt>          <a href="#id3"><span class="problematic" id="id4">*</span></a>constructed from <tt class="docutils literal"><span class="pre">time.strftime()*</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">DateTime</span></tt>      <a href="#id5"><span class="problematic" id="id6">*</span></a>constructed from <tt class="docutils literal"><span class="pre">time.strftime()*</span></tt></li>
+</ul>
+</div></blockquote>
+<p>Note: datum point names are case sensitive!</p>
+<p>If a datum point is used but the corresponding value can&#8217;t 
+be retrieved, an exception is raised to avoid continuing 
+with false information. To ensure a value is found for author
+and organization names, you can pass the relevant values per 
+the CLI or set the environment variables <tt class="docutils literal"><span class="pre">C4DPLUGWIZ_AUTHORNAME</span></tt> 
+and <tt class="docutils literal"><span class="pre">C4DPLUGWIZ_ORGNAME</span></tt> respectively.</p>
+</div>
+</div>
+<div class="section" id="search-replace-rules">
+<h2>Search/Replace Rules<a class="headerlink" href="#search-replace-rules" title="Permalink to this headline">¶</a></h2>
+<p>Search/replace rules are specified as <tt class="docutils literal"><span class="pre">key</span> <span class="pre">=</span> <span class="pre">value</span></tt> mappings in a 
+file called <tt class="docutils literal"><span class="pre">rules.py</span></tt>. There can be multiple rules files at different
+locations, but one location will take precendence over the others as 
+indicated in the following listing:</p>
+<p>With decreasing precedence:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>arbitrary file path, passed with <tt class="docutils literal"><span class="pre">-r/--rules-file</span></tt> CLI argument</li>
+<li>at the root level of each blueprint folder structure (<em>type local</em>)</li>
+<li>at the root level of the source repository (<em>repository global</em>)</li>
+</ol>
+</div></blockquote>
+<p>Keys as well as values must be valid Python statements and can therefore 
+include raw regex strings (e.g. <tt class="docutils literal"><span class="pre">r'[a-z]'</span></tt>) and functions calls 
+(e.g. <tt class="docutils literal"><span class="pre">time.strftime('%Y')</span></tt>).</p>
+<p>If you need to import additional modules in order to use some 
+functionality for keys or values, a special line, called an import line, 
+in <tt class="docutils literal"><span class="pre">rules.py</span></tt> can be used to specify a comma separated list of 
+modules to import. Each of these lines must have the following 
+syntax: <tt class="docutils literal"><span class="pre">#</span> <span class="pre">import</span> <span class="pre">module1,module2,module3</span> <span class="pre">...</span></tt> and so on
+(the ellipsis not being part of the syntax).</p>
+<p>Lines in <tt class="docutils literal"><span class="pre">rules.py</span></tt> other than an import line starting with the hash 
+character are considered comments and ignored, as well as lines that do 
+not have a format of <tt class="docutils literal"><span class="pre">&lt;key&gt;\s*=\s*&lt;value&gt;</span></tt> where <tt class="docutils literal"><span class="pre">&lt;...&gt;</span></tt> stands 
+for a variable term and <tt class="docutils literal"><span class="pre">\s*</span></tt> stands for zero or more spaces.</p>
+<p>If you need a value for a key to span multiple lines, assign the 
+value in <em>raw text</em> form, e.g. between single, double or tripple 
+quotes and with carriage returns, line feeds etc. escaped.</p>
+<p>Also, if you expect to make full use of non-ASCII characters, such 
+as accented e&#8217;s or umlauts, keep in mind that you must define them 
+in <tt class="docutils literal"><span class="pre">rules.py</span></tt> as unicode string (<tt class="docutils literal"><span class="pre">u'...'</span></tt>) and set an encoding
+comment at the very beginning (e.g. <tt class="docutils literal"><span class="pre">#</span> <span class="pre">coding:</span> <span class="pre">utf-8</span></tt>). The same 
+goes for the strings in the templated file where the unicode value
+should be inserted: these must be unicode strings too and the file
+also needs a coding comment at the top.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">André Berg</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><p class="first">2013 Sera Media VFX. All rights reserved.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first">Licensed under the Apache License, Version 2.0 (the &#8220;License&#8221;);n
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an <strong>&#8220;AS IS&#8221;</strong> <strong>BASIS</strong>,
+<strong>WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND</strong>, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">contact:</th><td class="field-body"><p class="first last"><a class="reference external" href="mailto:seramediavfx&#37;&#52;&#48;gmail&#46;com">seramediavfx<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="templates.html">About Templates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templates.html#magic-tokens">Magic Tokens</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">CINEMA 4D Plugin Wizard</a><ul>
+<li><a class="reference internal" href="#definition">Definition</a></li>
+<li><a class="reference internal" href="#how-it-works">How It Works</a></li>
+<li><a class="reference internal" href="#text-replacements">Text Replacements</a><ul>
+<li><a class="reference internal" href="#magic-tokens">Magic Tokens</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#search-replace-rules">Search/Replace Rules</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="templates.html"
+                        title="next chapter">About Templates</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="templates.html" title="About Templates"
+             >next</a> |</li>
+        <li><a href="#">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, André Berg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

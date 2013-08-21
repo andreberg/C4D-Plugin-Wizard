@@ -1,0 +1,349 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>API &mdash; CINEMA 4D Plugin Wizard 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="CINEMA 4D Plugin Wizard 0.5 documentation" href="index.html" />
+    <link rel="prev" title="About Templates" href="templates.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="templates.html" title="About Templates"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="c4dplugwiz.PluginWizard">
+<em class="property">class </em><tt class="descclassname">c4dplugwiz.</tt><tt class="descname">PluginWizard</tt><big>(</big><em>config</em>, <em>plugin_type='cmdplugin'</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#PluginWizard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.PluginWizard" title="Permalink to this definition">¶</a></dt>
+<dd><p>CINEMA 4D plugin template wizard.</p>
+<p>Main class which provides methods for replacements in 
+the names and contents of files contained within a folder 
+structure.</p>
+<dl class="method">
+<dt id="c4dplugwiz.PluginWizard.get_tokentable_listing">
+<tt class="descname">get_tokentable_listing</tt><big>(</big><em>indent=3</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#PluginWizard.get_tokentable_listing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.PluginWizard.get_tokentable_listing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a string with all data entries of the token table, including forms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indent</strong> (<em>int</em>) &#8211; how many spaces for indentation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="c4dplugwiz.PluginWizard.process_contents">
+<tt class="descname">process_contents</tt><big>(</big><em>exclude=None</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#PluginWizard.process_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.PluginWizard.process_contents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace tokens in file contents based on rules.py</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exclude</strong> (<em>string</em>) &#8211; if filename (incl. ext) 
+matches this regex, the file is excluded from 
+being processed. Note that <tt class="docutils literal"><span class="pre">self.excluded_files</span></tt>
+are being skipped by default.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="c4dplugwiz.PluginWizard.process_names">
+<tt class="descname">process_names</tt><big>(</big><em>overwrite=False</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#PluginWizard.process_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.PluginWizard.process_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do magic token and rule based replacements in file and rootdir names.</p>
+<p>A magic token has the form <tt class="docutils literal"><span class="pre">%!Value!%</span></tt> or <tt class="docutils literal"><span class="pre">%!ValueAsForm!%</span></tt> where
+<tt class="docutils literal"><span class="pre">Value</span></tt> is the value of an entry in the token table and <tt class="docutils literal"><span class="pre">Form</span></tt> 
+a conjugate of that value.</p>
+<p>E.g. <tt class="docutils literal"><span class="pre">Value</span></tt> might be <tt class="docutils literal"><span class="pre">PluginName</span></tt> which would result in the 
+plugin&#8217;s name as entered by the user.</p>
+<p><tt class="docutils literal"><span class="pre">PluginNameAsIdentifier</span></tt> is <tt class="docutils literal"><span class="pre">PluginName</span></tt> taking the form of an 
+<tt class="docutils literal"><span class="pre">Identifier</span></tt>, meaning it has invalid characters replaced, 
+spaces stripped and converted to <em>CamelCase</em> form.</p>
+<p>There are multiple such forms for each magic token. 
+For an overview call <tt class="xref py py-func docutils literal"><span class="pre">print_tokentable()</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>overwrite</strong> (<em>bool</em>) &#8211; if True, rename a file or rootdir even 
+if it would replace an already existing file or rootdir.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="c4dplugwiz.TextFX">
+<em class="property">class </em><tt class="descclassname">c4dplugwiz.</tt><tt class="descname">TextFX</tt><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Methods for processing and transforming text.</p>
+<dl class="staticmethod">
+<dt id="c4dplugwiz.TextFX.abbreviate">
+<em class="property">static </em><tt class="descname">abbreviate</tt><big>(</big><em>word</em>, <em>maxchars=-1</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX.abbreviate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX.abbreviate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce some string to an abbreviation of a given length.
+Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">abbreviate</span><span class="p">(</span><span class="s">&#39;AndisSSuper_PluginSTOP &#39;</span><span class="p">)</span>
+<span class="go">&#39;ASPS&#39;</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>word</strong> (<em>string</em>) &#8211; the string to abbreviate</li>
+<li><strong>maxchars</strong> (<em>int</em>) &#8211; if &gt; 0, determines length 
+of abbreviation, e.g. with a length of 3, &#8216;ASPS&#8217; 
+above becomes &#8216;ASP&#8217;.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="c4dplugwiz.TextFX.decomp_unicode">
+<em class="property">static </em><tt class="descname">decomp_unicode</tt><big>(</big><em>word</em>, <em>canonical=True</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX.decomp_unicode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX.decomp_unicode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decompose Unicode character sequences using either canonical 
+or nominal mapping.</p>
+<p>E.g. <tt class="docutils literal"><span class="pre">LATIN</span> <span class="pre">SMALL</span> <span class="pre">LETTER</span> <span class="pre">E</span> <span class="pre">WITH</span> <span class="pre">ACUTE</span></tt> (<tt class="docutils literal"><span class="pre">U+00E9</span></tt>) becomes 
+<tt class="docutils literal"><span class="pre">LATIN</span> <span class="pre">SMALL</span> <span class="pre">LETTER</span> <span class="pre">E</span></tt> (<tt class="docutils literal"><span class="pre">U+0065</span></tt>) + <tt class="docutils literal"><span class="pre">COMBINING</span> <span class="pre">ACUTE</span> <span class="pre">ACCENT</span></tt> (<tt class="docutils literal"><span class="pre">U+0301</span></tt>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>word</strong> (<em>unicode</em>) &#8211; the unicode word to decompose</li>
+<li><strong>canonical</strong> (<em>bool</em>) &#8211; if <tt class="docutils literal"><span class="pre">True</span></tt> non-combining 
+diacritical marks will be mapped to their combining 
+forms and maybe combined with the letter preceeding 
+the position.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="c4dplugwiz.TextFX.precomp_unicode">
+<em class="property">static </em><tt class="descname">precomp_unicode</tt><big>(</big><em>word</em>, <em>canonical=True</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX.precomp_unicode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX.precomp_unicode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompose Unicode character sequences, using either canonical 
+or nominal mapping. 
+E.g. <tt class="docutils literal"><span class="pre">LATIN</span> <span class="pre">SMALL</span> <span class="pre">LETTER</span> <span class="pre">E</span></tt> (<tt class="docutils literal"><span class="pre">U+0065</span></tt>) + <tt class="docutils literal"><span class="pre">COMBINING</span> <span class="pre">ACUTE</span> <span class="pre">ACCENT</span></tt> (<tt class="docutils literal"><span class="pre">U+0301</span></tt>) 
+becomes <tt class="docutils literal"><span class="pre">LATIN</span> <span class="pre">SMALL</span> <span class="pre">LETTER</span> <span class="pre">E</span> <span class="pre">WITH</span> <span class="pre">ACUTE</span></tt> (<tt class="docutils literal"><span class="pre">U+00E9</span></tt>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>word</strong> (<em>unicode</em>) &#8211; the unicode word to preccompose</li>
+<li><strong>canonical</strong> (<em>bool</em>) &#8211; if <tt class="docutils literal"><span class="pre">True</span></tt> combining diacritical 
+marks will be mapped to their non-combining forms when they 
+cannot be combined with the letter preceeding the position.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="c4dplugwiz.TextFX.sanitize">
+<em class="property">static </em><tt class="descname">sanitize</tt><big>(</big><em>word</em>, <em>safechar='_'</em>, <em>replace_umlauts=False</em>, <em>replace_diacritics=False</em>, <em>replace_greek=False</em>, <em>allowed_chars='_\-()'</em>, <em>errors='replace'</em>, <em>encoding='utf-8'</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX.sanitize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX.sanitize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sanitize word so that it might be used as a filename 
+in an online transfer or in software that needs to 
+work on a restricted set of names for files and other
+resource descriptors, e.g. only underscores are allowed, 
+no accented characters, etc.</p>
+<p>Tries to deal gracefully with higher order characters, 
+such as diacritics so that the original meaning of a 
+word may be preserved better than, for example, just 
+replacing higher order chars with a char deemed safe, 
+like an underbar &#8216;_&#8217;, e.g. given &#8216;Über&#8217;, &#8216;Ueber&#8217; or
+&#8216;Uber&#8217; are generally favorable to &#8216;_ber&#8217;.</p>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">sanitize</span><span class="p">(</span><span class="s">u&#39;Äsbëst-Shop&#39;</span><span class="p">)</span>
+<span class="go">u&#39;_sb_st-Shop&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">sanitize</span><span class="p">(</span><span class="s">u&#39;Äsbëst-Shop&#39;</span><span class="p">,</span> <span class="n">safechar</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="go">u&#39;sbst-Shop&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">sanitize</span><span class="p">(</span><span class="s">u&#39;Äsbëst-Shop&#39;</span><span class="p">,</span> <span class="n">safechar</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">replace_umlauts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">u&#39;Aesbst-Shop&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">sanitize</span><span class="p">(</span><span class="s">u&#39;Äsbëst-Shop&#39;</span><span class="p">,</span> <span class="n">safechar</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">replace_umlauts</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">replace_diacritics</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">u&#39;Aesbest-Shop&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">sanitize</span><span class="p">(</span><span class="s">u&#39;Äsbëst-Shop&#39;</span><span class="p">,</span> <span class="n">safechar</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">replace_umlauts</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">replace_diacritics</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">allowed_chars</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+<span class="go">u&#39;AesbestShop&#39;</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>word</strong> (<em>string</em>) &#8211; the word to sanitize</li>
+<li><strong>safechar</strong> (<em>string</em>) &#8211; the char to use for replacing non-allowed chars</li>
+<li><strong>replace_umlauts</strong> (<em>bool</em>) &#8211; if True, replace umlauts like &#8216;ä&#8217; with a 
+phonetic equivalent like &#8216;ae&#8217;.</li>
+<li><strong>replace_diacritics</strong> (<em>bool</em>) &#8211; if True, replace diacritics with a 
+decomposed form where the mark is dropped (e.g. &#8216;ç&#8217; becomes &#8216;c&#8217;)</li>
+<li><strong>replace_greek</strong> (<em>bool</em>) &#8211; if True, replace greek letters with their 
+translitterated name, e.g. &#8216;π&#8217; becomes &#8216;pi&#8217;.</li>
+<li><strong>allowed_chars</strong> (<em>string</em>) &#8211; string of chars to leave unchanged. 
+Note that the string is used within a regex.</li>
+<li><strong>errors</strong> (<em>string</em>) &#8211; if &#8216;strict&#8217; raise whatever exception occurred.
+If &#8216;replace&#8217;, replace each character that causes an error during
+processing with an underscore. Default is &#8216;replace&#8217;.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="c4dplugwiz.TextFX.split_camelcase">
+<em class="property">static </em><tt class="descname">split_camelcase</tt><big>(</big><em>word</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX.split_camelcase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX.split_camelcase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split a CamelCaseString into <tt class="docutils literal"><span class="pre">['Camel',</span> <span class="pre">'Case',</span> <span class="pre">'String']</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>word</strong> (<em>string</em>) &#8211; the string to split</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="c4dplugwiz.TextFX.to_camelcase">
+<em class="property">static </em><tt class="descname">to_camelcase</tt><big>(</big><em>word</em>, <em>capitalized=True</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX.to_camelcase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX.to_camelcase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert &#8216;word&#8217; to CamelCase.</p>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">&#39;hot flaming cats&#39;</span><span class="p">)</span>
+<span class="go">&#39;HotFlamingCats&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">&#39;HotFlamingCats&#39;</span><span class="p">)</span>
+<span class="go">&#39;HotFlamingCats&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">&#39;hotFlamingCats&#39;</span><span class="p">)</span>
+<span class="go">&#39;HotFlamingCats&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">&#39;hot_flaming_cats&#39;</span><span class="p">)</span>
+<span class="go">&#39;HotFlamingCats&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">&#39;Hot Flaming _ Cats&#39;</span><span class="p">)</span>
+<span class="go">&#39;HotFlamingCats&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">u&#39;höt_fläming_cäts&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+<span class="go">hötFlämingCäts</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>word</strong> (<em>unicode</em>) &#8211; the string to convert</li>
+<li><strong>capitalized</strong> (<em>bool</em>) &#8211; if <tt class="docutils literal"><span class="pre">True</span></tt>, always capitalize 
+the first character of the result.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="templates.html"
+                        title="previous chapter">About Templates</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="templates.html" title="About Templates"
+             >previous</a> |</li>
+        <li><a href="index.html">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, André Berg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
