@@ -1,0 +1,7 @@
+// C4D-StringResource
+// Identifier	Text
+
+STRINGTABLE
+{
+  IDD_TAG_SETTINGS "%!PluginName!%";
+}

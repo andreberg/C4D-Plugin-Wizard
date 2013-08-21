@@ -2,7 +2,7 @@
 
 *~
 *.[oa]
-*.bak
+*.bak*
 backup/
 
 # Mac OS X stuff
@@ -38,10 +38,11 @@ doc/
 coverage.txt
 .coverage
 coverage/
-htmlcov
+htmlcov/
 
 # Python stuff
 
+__pycache__
 *.pyc
 
 # Project stuff
@@ -50,5 +51,6 @@ testrun
 profile_*.*
 *graph.png
 *.pstats
-unittests/data/output
-
+tests/data/output
+design/
+testrun/
