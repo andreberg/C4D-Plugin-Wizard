@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Alternative Forms &mdash; CINEMA 4D Plugin Wizard 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="CINEMA 4D Plugin Wizard 1.0 documentation" href="index.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Magic Tokens" href="tokens.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tokens.html" title="Magic Tokens"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CINEMA 4D Plugin Wizard 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="alternative-forms">
+<span id="forms"></span><h1>Alternative Forms<a class="headerlink" href="#alternative-forms" title="Permalink to this headline">¶</a></h1>
+<p>The following tables provide an overview over some of the alternative
+forms available. Remember that you can define your own replacements via
+the RULES dictionary in your rules.py file.</p>
+<p><em>Note: magic tokens and rules are case sensitive.</em></p>
+<div class="section" id="names">
+<h2>Names<a class="headerlink" href="#names" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="38%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Form</th>
+<th class="head">Input</th>
+<th class="head">Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Abbreviation</td>
+<td>Make Super Awesome Button</td>
+<td>MSAB (up to 6 letters)</td>
+</tr>
+<tr class="row-odd"><td>Initials</td>
+<td>Make Super Awesome Button</td>
+<td>MSA (up to 3 letters)</td>
+</tr>
+<tr class="row-even"><td>ID</td>
+<td>Make Awesome Button</td>
+<td>MakeAwesomeButton</td>
+</tr>
+<tr class="row-odd"><td>UppercaseID</td>
+<td>Make Awesome Button</td>
+<td>MAKEAWESOMEBUTTON</td>
+</tr>
+<tr class="row-even"><td>UppercaseIDSep</td>
+<td>Make Awesome Button</td>
+<td>MAKE_AWESOME_BUTTON</td>
+</tr>
+<tr class="row-odd"><td>Cleaned</td>
+<td>&#8220;Déjà-vu (_+=?!)&#8221;</td>
+<td>Deja-Vu (_+=!)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="date-time">
+<h2>Date &amp; Time<a class="headerlink" href="#date-time" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Form</th>
+<th class="head">Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Iso</td>
+<td>2013-08-28T16:31:05</td>
+</tr>
+<tr class="row-odd"><td>Locale</td>
+<td>08/28/13 16:31:05</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="time">
+<h2>Time<a class="headerlink" href="#time" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Form</th>
+<th class="head">Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Locale</td>
+<td>163105</td>
+</tr>
+<tr class="row-odd"><td>LocaleSeparated</td>
+<td>16:31:05</td>
+</tr>
+<tr class="row-even"><td>English</td>
+<td>043105PM</td>
+</tr>
+<tr class="row-odd"><td>EnglishSeparated</td>
+<td>04:31:05 PM</td>
+</tr>
+<tr class="row-even"><td>SecondsSinceEpoch</td>
+<td>1377700431</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="date">
+<h2>Date<a class="headerlink" href="#date" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="52%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Form</th>
+<th class="head">Output</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Iso</td>
+<td>20130828</td>
+</tr>
+<tr class="row-odd"><td>IsoSeparated</td>
+<td>2013-08-28</td>
+</tr>
+<tr class="row-even"><td>Locale</td>
+<td>082813</td>
+</tr>
+<tr class="row-odd"><td>LocaleSeparated</td>
+<td>08/28/13</td>
+</tr>
+<tr class="row-even"><td>English</td>
+<td>082813</td>
+</tr>
+<tr class="row-odd"><td>EnglishSeparated</td>
+<td>08/28/13</td>
+</tr>
+<tr class="row-even"><td>EnglishDashSeparated</td>
+<td>08-28-13</td>
+</tr>
+<tr class="row-odd"><td>NameOfDay</td>
+<td>Wednesday</td>
+</tr>
+<tr class="row-even"><td>ShortNameOfDay</td>
+<td>Wed</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Alternative Forms</a><ul>
+<li><a class="reference internal" href="#names">Names</a></li>
+<li><a class="reference internal" href="#date-time">Date &amp; Time</a></li>
+<li><a class="reference internal" href="#time">Time</a></li>
+<li><a class="reference internal" href="#date">Date</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tokens.html"
+                        title="previous chapter">Magic Tokens</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/forms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tokens.html" title="Magic Tokens"
+             >previous</a> |</li>
+        <li><a href="index.html">CINEMA 4D Plugin Wizard 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, André Berg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
