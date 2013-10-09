@@ -66,3 +66,7 @@ scripts/*gh_pages.sh
 
 build/
 scripts/*.0-1.log
+
+# Github
+
+gh-pages/
