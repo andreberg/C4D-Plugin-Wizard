@@ -1,6 +1,6 @@
 # -*- coding: ${ENCODING}  -*-
 # 
-#  %!PluginNameAsIdentifier!%.pyp
+#  %!PluginNameAsID!%.pyp
 #  CINEMA 4D Python Command Plugins
 #  
 #  Created by ${FULLNAME} on ${DATE}.
@@ -75,7 +75,7 @@ on a spare copy of your data first.
 # -------------------------------------------
 
 # unique ID
-ID_%!PluginNameAsUppercaseIdentifier!% = %!ID!%
+ID_%!PluginNameAsUppercaseID!% = %!ID!%
 
 
 # Element IDs
@@ -97,7 +97,7 @@ IDS_MENU_ABOUT     = "About..."
 # ------------------------------------------------------
 #                   User Interface 
 # ------------------------------------------------------
-class %!PluginNameAsIdentifier!%Dialog(gui.GeDialog):
+class %!PluginNameAsID!%Dialog(gui.GeDialog):
     
     def CreateLayout(self):
         self.SetTitle(IDS_DIALOG_TITLE)
@@ -124,7 +124,7 @@ class %!PluginNameAsIdentifier!%Dialog(gui.GeDialog):
             scriptvars = {
                 # TODO: get scriptvars from current ui values
             }
-            script = %!PluginNameAsIdentifier!%Script(scriptvars)
+            script = %!PluginNameAsID!%Script(scriptvars)
             if DEBUG:
                 print("do it: %r" % msg)
                 print("script = %r" % script)
@@ -147,10 +147,10 @@ class %!PluginNameAsIdentifier!%Dialog(gui.GeDialog):
 #                   Command Script 
 # ------------------------------------------------------
 
-class %!PluginNameAsIdentifier!%Script(object):
+class %!PluginNameAsID!%Script(object):
     """Run when the user clicks the OK button."""
     def __init__(self, scriptvars=None):
-        super(%!PluginNameAsIdentifier!%Script, self).__init__()
+        super(%!PluginNameAsID!%Script, self).__init__()
         self.data = scriptvars
     
     def run(self):
@@ -179,7 +179,7 @@ class %!PluginNameAsIdentifier!%Script(object):
         doc.EndUndo()
         
         timeend = int(c4d.GeGetMilliSeconds() - timestart)
-        timemsg = u"%!PluginNameAsIdentifier!%: finished in " + str(timeend) + " milliseconds"
+        timemsg = u"%!PluginNameAsID!%: finished in " + str(timeend) + " milliseconds"
         print(timemsg)
         
         return True
@@ -189,21 +189,21 @@ class %!PluginNameAsIdentifier!%Script(object):
 #                      Main 
 # ----------------------------------------------------
 
-class %!PluginNameAsIdentifier!%Main(plugins.CommandData):
+class %!PluginNameAsID!%Main(plugins.CommandData):
     
     dialog = None
     
     def Execute(self, doc):
         # create the dialog
         if self.dialog is None:
-            self.dialog = %!PluginNameAsIdentifier!%Dialog()
-        return self.dialog.Open(c4d.DLG_TYPE_ASYNC, pluginid=ID_%!PluginNameAsUppercaseIdentifier!%)
+            self.dialog = %!PluginNameAsID!%Dialog()
+        return self.dialog.Open(c4d.DLG_TYPE_ASYNC, pluginid=ID_%!PluginNameAsUppercaseID!%)
     
     def RestoreLayout(self, secref):
         # manage nonmodal dialog
         if self.dialog is None:
-            self.dialog = %!PluginNameAsIdentifier!%Dialog()
-        return self.dialog.Restore(pluginid=ID_%!PluginNameAsUppercaseIdentifier!%, secret=secref)
+            self.dialog = %!PluginNameAsID!%Dialog()
+        return self.dialog.Restore(pluginid=ID_%!PluginNameAsUppercaseID!%, secret=secref)
 
 
 if __name__ == "__main__":
@@ -211,12 +211,12 @@ if __name__ == "__main__":
     icon = bitmaps.BaseBitmap()
     icon.InitWith(os.path.join(thispath, "res", "icon.png"))
     plugins.RegisterCommandPlugin(
-        ID_%!PluginNameAsUppercaseIdentifier!%, 
+        ID_%!PluginNameAsUppercaseID!%, 
         PLUGIN_NAME, 
         0, 
         icon, 
         PLUGIN_HELP, 
-        %!PluginNameAsIdentifier!%Main()
+        %!PluginNameAsID!%Main()
     )
     print(u"%s v%s loaded. (C) %s ${FULLNAME}" % (PLUGIN_NAME, PLUGIN_VERSION, CR_YEAR))
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>About Templates &mdash; CINEMA 4D Plugin Wizard 0.5 documentation</title>
+    <title>About Templates &mdash; CINEMA 4D Plugin Wizard 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5',
+        VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CINEMA 4D Plugin Wizard 0.5 documentation" href="index.html" />
-    <link rel="next" title="API" href="api.html" />
+    <link rel="top" title="CINEMA 4D Plugin Wizard 1.0 documentation" href="index.html" />
+    <link rel="next" title="Tips" href="tips.html" />
     <link rel="prev" title="CINEMA 4D Plugin Wizard" href="index.html" /> 
   </head>
   <body>
@@ -38,12 +38,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="API"
+          <a href="tips.html" title="Tips"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="CINEMA 4D Plugin Wizard"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">CINEMA 4D Plugin Wizard 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -59,11 +59,11 @@
 <p>When the template is read and a new plugin created, the wizard performs replacements of <strong>magic tokens</strong> and <strong>rules</strong> in the files and folder names of the template folder structure, as well as the contents of any file.</p>
 <p>Magic tokens are specific text snippets enclosed by the starting character sequence <strong>%!</strong> and the ending character sequence <strong>!%</strong>.</p>
 <p>The text snippets that can be used inbetween are called <strong>datum points</strong> and are predetermined. Datum points can also have <strong>alternative forms</strong> into which they will be transformed.</p>
-<p>For example one datum point might be the plugin name as entered by the user and one transformation might be an uppercase transformation, called the <strong>UppercaseIdentifier</strong> form.
-A complete magic token of the previous example would be <strong>PluginName</strong>, additionally with the alternative form: <strong>PluginNameAsUppercaseIdentifier</strong>.</p>
+<p>For example one datum point might be the plugin name as entered by the user and one transformation might be an uppercase transformation, called the <strong>UppercaseID</strong> form.
+A complete magic token of the previous example would be <strong>PluginName</strong>, additionally with the alternative form: <strong>PluginNameAsUppercaseID</strong>.</p>
 <p>Note the adverb <strong>As</strong> that separates the datum point from the alternative form.</p>
 <p><strong>Rules</strong> on the other hand are read from a Python file called, <strong>rules.py</strong> that can reside in the data directory or in each template directory. This file won&#8217;t be copied but a Python dictionary type variable named <strong>RULES</strong> will be read from it and the wizard will then perform searches looking for any text strings named the same as the keys of the RULES dict and will then perform replacements with the corresponding values.</p>
-<p>So, if you have a file called <tt class="docutils literal"><span class="pre">%!PluginNameAsUppercaseIdentifier!%.pyp</span></tt> in one of your templates and you enter <tt class="docutils literal"><span class="pre">Super</span> <span class="pre">Awesome</span> <span class="pre">Plugin</span></tt> as the plugin name in the wizard, the file will be renamed to <tt class="docutils literal"><span class="pre">SUPERAWESOMEPLUGIN.pyp</span></tt></p>
+<p>So, if you have a file called <tt class="docutils literal"><span class="pre">%!PluginNameAsUppercaseID!%.pyp</span></tt> in one of your templates and you enter <tt class="docutils literal"><span class="pre">Super</span> <span class="pre">Awesome</span> <span class="pre">Plugin</span></tt> as the plugin name in the wizard, the file will be renamed to <tt class="docutils literal"><span class="pre">SUPERAWESOMEPLUGIN.pyp</span></tt></p>
 <p>Likewise, suppose your <strong>rules.py</strong> file contains the following <strong>RULES</strong> dict:</p>
 <div class="code highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">time</span>
 
@@ -75,55 +75,7 @@ A complete magic token of the previous example would be <strong>PluginName</stro
 </div>
 <p>The wizard will now replace any occurrences of <tt class="docutils literal"><span class="pre">${YEAR}</span></tt> with the current year as returned by <tt class="docutils literal"><span class="pre">time.strftime</span></tt> and any occurrence of <tt class="docutils literal"><span class="pre">COMPANY</span></tt> with <tt class="docutils literal"><span class="pre">'My</span> <span class="pre">Company'</span></tt>.
 Again, this includes files and directory names as well as file contents.</p>
-</div>
-<div class="section" id="magic-tokens">
-<h1>Magic Tokens<a class="headerlink" href="#magic-tokens" title="Permalink to this headline">¶</a></h1>
-<p>Currently the following magic tokens are supported:</p>
-<p><em>Note: magic tokens and rules are case sensitive.</em></p>
-<div class="code highlight-python"><pre>OrgName:
-   OrgNameAsAbbreviation
-   OrgNameAsEntered
-   OrgNameAsIdentifier
-   OrgNameAsCleaned
-
-PluginName:
-   PluginNameAsUppercaseIdentifier
-   PluginNameAsAbbreviation
-   PluginNameAsCleaned
-   PluginNameAsEntered
-   PluginNameAsIdentifier
-
-DateTime:
-   DateTimeAsLocale
-   DateTimeAsIso
-
-AuthorName:
-   AuthorNameAsAbbreviation
-   AuthorNameAsEntered
-   AuthorNameAsIdentifier
-   AuthorNameAsCleaned
-
-Time:
-   TimeAsSecondsSinceEpoch
-   TimeAsLocaleSeparated
-   TimeAsLocale
-   TimeAsEnglishSeparated
-   TimeAsEnglish
-
-Date:
-   DateAsLocaleSeparated
-   DateAsNameOfDay
-   DateAsLocale
-   DateAsEnglishSeparated
-   DateAsIsoSeparated
-   DateAsEnglishDashSeparated
-   DateAsIso
-   DateAsEnglish
-   DateAsShortNameOfDay
-
-ID:
-   IDAsEntered</pre>
-</div>
+<p>See also <a class="reference internal" href="tips.html#tips"><em>Tips</em></a>.</p>
 </div>
 
 
@@ -132,18 +84,12 @@ ID:
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">About Templates</a></li>
-<li><a class="reference internal" href="#magic-tokens">Magic Tokens</a></li>
-</ul>
-
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
                         title="previous chapter">CINEMA 4D Plugin Wizard</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="api.html"
-                        title="next chapter">API</a></p>
+  <p class="topless"><a href="tips.html"
+                        title="next chapter">Tips</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/templates.txt"
@@ -176,12 +122,12 @@ ID:
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="API"
+          <a href="tips.html" title="Tips"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="CINEMA 4D Plugin Wizard"
              >previous</a> |</li>
-        <li><a href="index.html">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">CINEMA 4D Plugin Wizard 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

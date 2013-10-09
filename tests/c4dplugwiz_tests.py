@@ -11,7 +11,7 @@ import re
 import shutil
 import unittest
 
-from c4dplugwiz import TextFX, PluginWizard, CLIError, PLUGIN_TYPE_TAG
+from c4dplugwiz import TextFX, PluginWizard, CLIError, PLUGIN_TYPE_DEFAULT
 
 
 CURDIR = os.path.abspath(os.curdir)
@@ -82,7 +82,7 @@ class TestTextFX(unittest.TestCase):
             result = TextFX.to_camelcase(sample)
             self.assertEqual(result, expected[i])
             
-        self.assertEqual(u'hôtFlâmíngCåts', TextFX.to_camelcase(u'hôt_Flâmíng __ Cåts', capitalized=False))
+        self.assertEqual(u'hôtFlâmíngCåts', TextFX.to_camelcase(u'hôt_Flâmíng __ Cåts', capitalize=False))
 
     def testSplitCamelCase(self):
         data = ['My Plugin Extraordinaire!',
@@ -260,7 +260,7 @@ class TestFolderStructure(unittest.TestCase):
         
         rootdir = os.path.abspath('./data/output/filenametests')
         
-        pw = PluginWizard(CONFIG_DEFAULT, plugin_type=PLUGIN_TYPE_TAG)
+        pw = PluginWizard(CONFIG_DEFAULT)
         pw.set_destdir(rootdir)
         
         self.assertEqual(os.path.join(CURDIR, 'data', 'sources'), pw.srcdir)

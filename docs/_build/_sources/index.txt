@@ -14,8 +14,11 @@ Contents:
 	:maxdepth: 3
 	
 	templates
+	tips
+	tokens
+	forms
 	api
-
+   
 
 Indices and tables
 ==================

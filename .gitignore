@@ -45,6 +45,10 @@ htmlcov/
 __pycache__
 *.pyc
 
+# Sphinx Stuff
+
+_build/
+
 # Project stuff
 
 testrun
@@ -54,3 +58,11 @@ profile_*.*
 tests/data/output
 design/
 testrun/
+settings.ini
+dist/
+scripts/*gh_pages.sh
+
+# PyInstaller 2.0 Stuff
+
+build/
+scripts/*.0-1.log

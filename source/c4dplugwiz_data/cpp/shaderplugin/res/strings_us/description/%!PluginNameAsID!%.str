@@ -1,0 +1,6 @@
+STRINGTABLE %!PluginNameAsID!%
+{
+	%!PluginNameAsID!% "%!PluginName!%";
+
+	%!PluginNameAsUppercaseID!%_COLOR	"Color";
+}

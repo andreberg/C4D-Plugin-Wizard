@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>CINEMA 4D Plugin Wizard &mdash; CINEMA 4D Plugin Wizard 0.5 documentation</title>
+    <title>CINEMA 4D Plugin Wizard &mdash; CINEMA 4D Plugin Wizard 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5',
+        VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CINEMA 4D Plugin Wizard 0.5 documentation" href="#" />
+    <link rel="top" title="CINEMA 4D Plugin Wizard 1.0 documentation" href="#" />
     <link rel="next" title="About Templates" href="templates.html" /> 
   </head>
   <body>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="templates.html" title="About Templates"
              accesskey="N">next</a> |</li>
-        <li><a href="#">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+        <li><a href="#">CINEMA 4D Plugin Wizard 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -50,10 +50,14 @@
             
   <div class="section" id="module-c4dplugwiz">
 <span id="cinema-4d-plugin-wizard"></span><h1>CINEMA 4D Plugin Wizard<a class="headerlink" href="#module-c4dplugwiz" title="Permalink to this headline">¶</a></h1>
-<p><strong>c4dplugwiz</strong> is a command line tool and a template system 
-that helps with creating python plugins for CINEMA 4D. 
-It works by copying pre-existing folder structures from
-a data repository to a destination specified by the user.</p>
+<p><strong>c4dplugwiz</strong> is a command line tool and a template system that 
+was written originally to help with creating the neccesary files 
+and folders for a fresh CINEMA 4D plugin. 
+It works by copying pre-existing folder structures from a template 
+data repository to a destination specified by the user.
+Its usefulness comes from a token and rules based search and replace
+system that works on file and folder names as well as the contents
+of any file.</p>
 <div class="section" id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h2>
 <p>A <em>wizard</em> or <em>assistant</em> is defined to be any process
@@ -125,7 +129,7 @@ Note the adverb <tt class="docutils literal"><span class="pre">As</span></tt> (c
 between the datum point and its form.</p>
 <p>For example, if the datum point <tt class="docutils literal"><span class="pre">%!PluginName!%</span></tt> is found it will
 be replaced by the name of the plugin as supplied by the user.
-If the alternate form <tt class="docutils literal"><span class="pre">%!PluginNameAsIdentifier!%</span></tt> is found, the
+If the alternate form <tt class="docutils literal"><span class="pre">%!PluginNameAsID!%</span></tt> is found, the
 name of the plugin as entered by the user will be sanitized for
 illegal characters and transformed to <em>CamelCase</em> format.</p>
 <p>There are a fixed number of variations per datum point and to find 
@@ -133,13 +137,13 @@ out about those, pass the <tt class="docutils literal"><span class="pre">-l/--li
 <p>Currently, the following datum points can be used:</p>
 <blockquote>
 <div><ul class="simple">
-<li><tt class="docutils literal"><span class="pre">ID</span></tt>            <em>supplied by user with a CLI argument</em></li>
-<li><tt class="docutils literal"><span class="pre">PluginName</span></tt>    <em>supplied by user with a CLI argument</em></li>
-<li><tt class="docutils literal"><span class="pre">AuthorName</span></tt>    <em>supplied by user with a CLI option, or an environment variable</em></li>
-<li><tt class="docutils literal"><span class="pre">OrgName</span></tt>       <em>supplied by user with a CLI option, or an environment variable</em></li>
-<li><tt class="docutils literal"><span class="pre">Date</span></tt>          <a href="#id1"><span class="problematic" id="id2">*</span></a>constructed from <tt class="docutils literal"><span class="pre">time.strftime()*</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">Time</span></tt>          <a href="#id3"><span class="problematic" id="id4">*</span></a>constructed from <tt class="docutils literal"><span class="pre">time.strftime()*</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">DateTime</span></tt>      <a href="#id5"><span class="problematic" id="id6">*</span></a>constructed from <tt class="docutils literal"><span class="pre">time.strftime()*</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">ID</span></tt>            supplied by user with a CLI argument</li>
+<li><tt class="docutils literal"><span class="pre">PluginName</span></tt>    supplied by user with a CLI argument</li>
+<li><tt class="docutils literal"><span class="pre">AuthorName</span></tt>    supplied by user with a CLI option, or an environment variable</li>
+<li><tt class="docutils literal"><span class="pre">OrgName</span></tt>       supplied by user with a CLI option, or an environment variable</li>
+<li><tt class="docutils literal"><span class="pre">Date</span></tt>          constructed from <tt class="docutils literal"><span class="pre">time.strftime()</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Time</span></tt>          constructed from <tt class="docutils literal"><span class="pre">time.strftime()</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">DateTime</span></tt>      constructed from <tt class="docutils literal"><span class="pre">time.strftime()</span></tt></li>
 </ul>
 </div></blockquote>
 <p>Note: datum point names are case sensitive!</p>
@@ -150,42 +154,29 @@ and organization names, you can pass the relevant values per
 the CLI or set the environment variables <tt class="docutils literal"><span class="pre">C4DPLUGWIZ_AUTHORNAME</span></tt> 
 and <tt class="docutils literal"><span class="pre">C4DPLUGWIZ_ORGNAME</span></tt> respectively.</p>
 </div>
-</div>
-<div class="section" id="search-replace-rules">
-<h2>Search/Replace Rules<a class="headerlink" href="#search-replace-rules" title="Permalink to this headline">¶</a></h2>
-<p>Search/replace rules are specified as <tt class="docutils literal"><span class="pre">key</span> <span class="pre">=</span> <span class="pre">value</span></tt> mappings in a 
-file called <tt class="docutils literal"><span class="pre">rules.py</span></tt>. There can be multiple rules files at different
-locations, but one location will take precendence over the others as 
-indicated in the following listing:</p>
-<p>With decreasing precedence:</p>
+<div class="section" id="rules">
+<h3>Rules<a class="headerlink" href="#rules" title="Permalink to this headline">¶</a></h3>
+<p>Search and replace rules are read from a file called <tt class="docutils literal"><span class="pre">rules.py</span></tt>.</p>
+<p>There can be multiple rules.py files at different locations, but one 
+location will take precendence over the others as indicated in the 
+following listing:</p>
 <blockquote>
-<div><ol class="arabic simple">
+<div><p><em>(with decreasing precedence)</em></p>
+<ol class="arabic simple">
 <li>arbitrary file path, passed with <tt class="docutils literal"><span class="pre">-r/--rules-file</span></tt> CLI argument</li>
-<li>at the root level of each blueprint folder structure (<em>type local</em>)</li>
-<li>at the root level of the source repository (<em>repository global</em>)</li>
+<li>at the root level of each blueprint folder structure (<em>plugin type local</em>)</li>
+<li>at the root level of the data source repository (<em>repository global</em>)</li>
 </ol>
 </div></blockquote>
-<p>Keys as well as values must be valid Python statements and can therefore 
-include raw regex strings (e.g. <tt class="docutils literal"><span class="pre">r'[a-z]'</span></tt>) and functions calls 
-(e.g. <tt class="docutils literal"><span class="pre">time.strftime('%Y')</span></tt>).</p>
-<p>If you need to import additional modules in order to use some 
-functionality for keys or values, a special line, called an import line, 
-in <tt class="docutils literal"><span class="pre">rules.py</span></tt> can be used to specify a comma separated list of 
-modules to import. Each of these lines must have the following 
-syntax: <tt class="docutils literal"><span class="pre">#</span> <span class="pre">import</span> <span class="pre">module1,module2,module3</span> <span class="pre">...</span></tt> and so on
-(the ellipsis not being part of the syntax).</p>
-<p>Lines in <tt class="docutils literal"><span class="pre">rules.py</span></tt> other than an import line starting with the hash 
-character are considered comments and ignored, as well as lines that do 
-not have a format of <tt class="docutils literal"><span class="pre">&lt;key&gt;\s*=\s*&lt;value&gt;</span></tt> where <tt class="docutils literal"><span class="pre">&lt;...&gt;</span></tt> stands 
-for a variable term and <tt class="docutils literal"><span class="pre">\s*</span></tt> stands for zero or more spaces.</p>
-<p>If you need a value for a key to span multiple lines, assign the 
-value in <em>raw text</em> form, e.g. between single, double or tripple 
-quotes and with carriage returns, line feeds etc. escaped.</p>
+<p>Since rules.py is just a plain old Python script you can write any valid 
+Python code but you must have a dictionary called RULES somewhere in that 
+file, the keys of which will serve as search terms and the values as 
+replacement terms.</p>
 <p>Also, if you expect to make full use of non-ASCII characters, such 
 as accented e&#8217;s or umlauts, keep in mind that you must define them 
 in <tt class="docutils literal"><span class="pre">rules.py</span></tt> as unicode string (<tt class="docutils literal"><span class="pre">u'...'</span></tt>) and set an encoding
 comment at the very beginning (e.g. <tt class="docutils literal"><span class="pre">#</span> <span class="pre">coding:</span> <span class="pre">utf-8</span></tt>). The same 
-goes for the strings in the templated file where the unicode value
+goes for strings in template Python scripts where the unicode value 
 should be inserted: these must be unicode strings too and the file
 also needs a coding comment at the top.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -195,7 +186,7 @@ also needs a coding comment at the top.</p>
 <tr class="field-odd field"><th class="field-name">author:</th><td class="field-body"><p class="first">André Berg</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><p class="first">2013 Sera Media VFX. All rights reserved.</p>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body"><p class="first">2013 Iris VFX. All rights reserved.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">license:</th><td class="field-body"><p class="first">Licensed under the Apache License, Version 2.0 (the &#8220;License&#8221;);n
@@ -209,17 +200,26 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">contact:</th><td class="field-body"><p class="first last"><a class="reference external" href="mailto:seramediavfx&#37;&#52;&#48;gmail&#46;com">seramediavfx<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<tr class="field-even field"><th class="field-name">contact:</th><td class="field-body"><p class="first last"><a class="reference external" href="mailto:irisvfx&#37;&#52;&#48;gmail&#46;com">irisvfx<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
 </td>
 </tr>
 </tbody>
 </table>
 </div>
+</div>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="templates.html">About Templates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="templates.html#magic-tokens">Magic Tokens</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tokens.html">Magic Tokens</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forms.html">Alternative Forms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="forms.html#names">Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forms.html#date-time">Date &amp; Time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forms.html#time">Time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forms.html#date">Date</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 </ul>
 </div>
@@ -246,9 +246,9 @@ limitations under the License.</p>
 <li><a class="reference internal" href="#how-it-works">How It Works</a></li>
 <li><a class="reference internal" href="#text-replacements">Text Replacements</a><ul>
 <li><a class="reference internal" href="#magic-tokens">Magic Tokens</a></li>
+<li><a class="reference internal" href="#rules">Rules</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#search-replace-rules">Search/Replace Rules</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -291,7 +291,7 @@ limitations under the License.</p>
         <li class="right" >
           <a href="templates.html" title="About Templates"
              >next</a> |</li>
-        <li><a href="#">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+        <li><a href="#">CINEMA 4D Plugin Wizard 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

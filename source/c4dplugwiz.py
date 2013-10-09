@@ -2,10 +2,14 @@
 # encoding: utf-8
 # pylint: disable-msg=W0603,W0212,W0702,W0703
 ur'''\
-**c4dplugwiz** is a command line tool and a template system 
-that helps with creating python plugins for CINEMA 4D. 
-It works by copying pre-existing folder structures from
-a data repository to a destination specified by the user.
+**c4dplugwiz** is a command line tool and a template system that 
+was written originally to help with creating the neccesary files 
+and folders for a fresh CINEMA 4D plugin. 
+It works by copying pre-existing folder structures from a template 
+data repository to a destination specified by the user.
+Its usefulness comes from a token and rules based search and replace
+system that works on file and folder names as well as the contents
+of any file.
 
 Definition
 ----------
@@ -83,7 +87,7 @@ between the datum point and its form.
 
 For example, if the datum point ``%!PluginName!%`` is found it will
 be replaced by the name of the plugin as supplied by the user.
-If the alternate form ``%!PluginNameAsIdentifier!%`` is found, the
+If the alternate form ``%!PluginNameAsID!%`` is found, the
 name of the plugin as entered by the user will be sanitized for
 illegal characters and transformed to *CamelCase* format.
 
@@ -92,13 +96,13 @@ out about those, pass the ``-l/--list-tokens`` flag to the CLI.
  
 Currently, the following datum points can be used:
  
-    - ``ID``            *supplied by user with a CLI argument*
-    - ``PluginName``    *supplied by user with a CLI argument*
-    - ``AuthorName``    *supplied by user with a CLI option, or an environment variable*
-    - ``OrgName``       *supplied by user with a CLI option, or an environment variable*
-    - ``Date``          *constructed from ``time.strftime()*``
-    - ``Time``          *constructed from ``time.strftime()*``
-    - ``DateTime``      *constructed from ``time.strftime()*``
+    - ``ID``            supplied by user with a CLI argument
+    - ``PluginName``    supplied by user with a CLI argument
+    - ``AuthorName``    supplied by user with a CLI option, or an environment variable
+    - ``OrgName``       supplied by user with a CLI option, or an environment variable
+    - ``Date``          constructed from ``time.strftime()``
+    - ``Time``          constructed from ``time.strftime()``
+    - ``DateTime``      constructed from ``time.strftime()``
     
 Note: datum point names are case sensitive!
 
@@ -109,53 +113,37 @@ and organization names, you can pass the relevant values per
 the CLI or set the environment variables ``C4DPLUGWIZ_AUTHORNAME`` 
 and ``C4DPLUGWIZ_ORGNAME`` respectively.
 
+Rules
+~~~~~
 
-Search/Replace Rules
---------------------
+Search and replace rules are read from a file called ``rules.py``. 
 
-Search/replace rules are specified as ``key = value`` mappings in a 
-file called ``rules.py``. There can be multiple rules files at different
-locations, but one location will take precendence over the others as 
-indicated in the following listing:
+There can be multiple rules.py files at different locations, but one 
+location will take precendence over the others as indicated in the 
+following listing:
 
-With decreasing precedence:
+    *(with decreasing precedence)*
 
     1. arbitrary file path, passed with ``-r/--rules-file`` CLI argument
-    2. at the root level of each blueprint folder structure (*type local*)
-    3. at the root level of the source repository (*repository global*)
-
-Keys as well as values must be valid Python statements and can therefore 
-include raw regex strings (e.g. ``r'[a-z]'``) and functions calls 
-(e.g. ``time.strftime('%Y')``). 
-
-If you need to import additional modules in order to use some 
-functionality for keys or values, a special line, called an import line, 
-in ``rules.py`` can be used to specify a comma separated list of 
-modules to import. Each of these lines must have the following 
-syntax: ``# import module1,module2,module3 ...`` and so on
-(the ellipsis not being part of the syntax). 
-
-Lines in ``rules.py`` other than an import line starting with the hash 
-character are considered comments and ignored, as well as lines that do 
-not have a format of ``<key>\s*=\s*<value>`` where ``<...>`` stands 
-for a variable term and ``\s*`` stands for zero or more spaces. 
-
-If you need a value for a key to span multiple lines, assign the 
-value in *raw text* form, e.g. between single, double or tripple 
-quotes and with carriage returns, line feeds etc. escaped. 
+    2. at the root level of each blueprint folder structure (*plugin type local*)
+    3. at the root level of the data source repository (*repository global*)
+    
+Since rules.py is just a plain old Python script you can write any valid 
+Python code but you must have a dictionary called RULES somewhere in that 
+file, the keys of which will serve as search terms and the values as 
+replacement terms.
 
 Also, if you expect to make full use of non-ASCII characters, such 
 as accented e's or umlauts, keep in mind that you must define them 
 in ``rules.py`` as unicode string (``u'...'``) and set an encoding
 comment at the very beginning (e.g. ``# coding: utf-8``). The same 
-goes for the strings in the templated file where the unicode value
+goes for strings in template Python scripts where the unicode value 
 should be inserted: these must be unicode strings too and the file
 also needs a coding comment at the top. 
 
-
 :author:     André Berg
              
-:copyright:  2013 Sera Media VFX. All rights reserved.
+:copyright:  2013 Iris VFX. All rights reserved.
              
 :license:    Licensed under the Apache License, Version 2.0 (the "License");\n
              you may not use this file except in compliance with the License.
@@ -169,7 +157,7 @@ also needs a coding comment at the top.
              See the License for the specific language governing permissions and
              limitations under the License.
 
-:contact:    seramediavfx@gmail.com
+:contact:    irisvfx@gmail.com
 '''
 from __future__ import print_function
 
@@ -189,7 +177,7 @@ __all__ = ['PluginWizard', 'TextFX']
 __version__ = (0, 5)
 __versionstr__ = '.'.join(str(x) for x in __version__)
 __date__ = '2011-04-30'
-__updated__ = '2013-08-21'
+__updated__ = '2013-10-07'
 
 
 DEBUG = 0 or ('DebugLevel' in os.environ and os.environ['DebugLevel'] > 0)
@@ -199,8 +187,7 @@ PROFILE = 0 or ('ProfileLevel' in os.environ and os.environ['ProfileLevel'] > 0)
 
 # GLOBALS
 
-PLUGIN_TYPE_CMD = 'cmdplugin'
-PLUGIN_TYPE_TAG = 'tagplugin'
+PLUGIN_TYPE_DEFAULT = None  # if None, use first sub folder from data dir when listed in alphabetical order 
 PLUGIN_ID_TESTING = 1000001
 
 
@@ -230,6 +217,20 @@ DEFAULT_EXCLUDES = list(set(DEFAULT_FILE_EXCLUDES).union(set(DEFAULT_DIR_EXCLUDE
 
 DEFAULT_DATADIR = 'c4dplugwiz_data'
 DEFAULT_RULES_FILENAME = 'rules.py'
+
+BASE_NAME_FORMS = [
+    'Entered',
+    'Cleaned',
+    'Uppercase',
+    'Lowercase',
+    'ID',
+    'UppercaseID',
+    'LowercaseID',
+    'UppercaseIDSep',
+    'LowercaseIDSep',
+    'Abbreviation',
+    'Initials'
+]
 
 g_verbose = 0
 
@@ -351,17 +352,13 @@ class TextFX(object):
         u'Χ': 'Chi', u'Ψ': 'Psi', u'Ω': 'Omega'
     }
     phonetic_umlauts = {
-        u'\xe4': 'ae',
-        u'\xe6': 'ae',
-        u'\xfc': 'ue',
-        u'\xf6': 'oe',
-        u'\xdf': 'ss',
-        u'\xc4': 'Ae',
-        u'\xc6': 'Ae',
-        u'\xdc': 'Ue',
-        u'\xd6': 'Oe',
-        u'\u0153': 'oe',
-        u'\u0276': 'oe'
+        u'Ä': 'Ae',
+        u'ä': 'ae',
+        u'Ü': 'Ue',
+        u'ü': 'ue',
+        u'Ö': 'Oe',
+        u'ö': 'oe',
+        u'ß': 'ss',
     }
     def __init__(self):
         super(TextFX, self).__init__()
@@ -423,7 +420,7 @@ class TextFX(object):
         return result
     
     @staticmethod
-    def to_camelcase(word, capitalized=True):
+    def to_camelcase(word, capitalize=True):
         u'''
         Convert 'word' to CamelCase.
         
@@ -457,7 +454,7 @@ class TextFX(object):
         word = re.sub(ur'_+([^_]+)', __capitalizematch, word, re.UNICODE)
         word = re.sub(ur' ([^ ]+)', __capitalizematch, word, re.UNICODE)
         word = re.sub(' ', '', word, re.UNICODE)
-        if capitalized:
+        if capitalize:
             word = '%s%s' % (word[0].upper(), word[1:])
         return word
     
@@ -603,6 +600,49 @@ class TextFX(object):
         word = re.sub(ur'[^a-zA-Z0-9%s]' % allowed_chars, safechar, word)
         return word
 
+    @staticmethod
+    def clean(word, safechar='_'):
+        if word is None or len(word) == 0:
+            return ''
+        cleaned_word = TextFX.sanitize(
+            word, safechar=safechar,
+            replace_umlauts=True, 
+            replace_diacritics=True, 
+            replace_greek=True, 
+            allowed_chars=r"_\-()'\+=!")
+        return cleaned_word
+        
+    @staticmethod
+    def transform(word, form):
+        form = form.lower()
+        if form == "cleaned":
+            return TextFX.clean(word, safechar=' ')
+        elif form == "abbreviation":
+            return TextFX.abbreviate(word)
+        elif form == "uppercase":
+            return word.upper()
+        elif form == "lowercase":
+            return word.lower()
+        elif form == "initials":
+            return TextFX.abbreviate(word, maxchars=3)
+        elif form == "uppercaseid":
+            return TextFX.to_camelcase(TextFX.clean(word, safechar=' ')).upper()
+        elif form == "lowercaseid":
+            return TextFX.to_camelcase(TextFX.clean(word, safechar=' ')).lower()
+        elif form == "uppercaseidsep":
+            return TextFX.clean(word, safechar='_').upper()
+        elif form == "lowercaseidsep":
+            return TextFX.clean(word, safechar='_').lower()
+        elif form == "id":
+            if '_' in word:
+                result = TextFX.clean(word, safechar='_')
+                result = result[0].upper() + result[1:]
+                return result
+            else:
+                return TextFX.to_camelcase(TextFX.clean(word, safechar='_'), capitalize=True)
+        else:
+            return word
+        
 
 class PluginWizard(object):
     '''
@@ -615,19 +655,60 @@ class PluginWizard(object):
     tokenchar_start   = g_mts
     tokenchar_end     = g_mte
     token_regex       = re.compile(r'%s(?P<token>\w+?)%s' % (tokenchar_start, tokenchar_end))
-    token_xform_regex = re.compile(r'%s(?P<token>\w+?)As(?P<form>\w+?)%s' % (tokenchar_start, tokenchar_end))
-    #import_regex      = re.compile(r'#\s*import (?P<modules>[\w, ]+)')
-    #kvsplit_regex     = re.compile(r'\s*=\s*')
+    token_xform_regex = re.compile(r'%s(?P<token>\w+?)As(?P<form>\w+?)%s' % (tokenchar_start, tokenchar_end))  
     
-    def __init__(self, config, plugin_type=PLUGIN_TYPE_CMD):
+    # alternative forms 'registry' 
+    # this is purely for info print outs at the command line
+    # it won't be used by _fill_tokentable
+    token_forms = {
+        'ID': [
+            'Entered',
+        ],
+        'PluginName': BASE_NAME_FORMS,
+        'AuthorName': BASE_NAME_FORMS,
+        'OrgName': BASE_NAME_FORMS,
+        'DateTime': [
+            'Iso',
+            'Locale'
+        ],
+        'Date': [
+            'IsoSeparated',
+            'Iso',
+            'EnglishDashSeparated',
+            'EnglishSeparated',
+            'English',
+            'LocaleSeparated',
+            'Locale',
+            'NameOfDay',
+            'ShortNameOfDay'
+        ],
+        'Time': [
+            'EnglishSeparated',
+            'English',
+            'LocaleSeparated',
+            'Locale',
+            'SecondsSinceEpoch'
+        ]
+    }
+
+    def __init__(self, config, plugin_type=PLUGIN_TYPE_DEFAULT):
         super(PluginWizard, self).__init__()
-        self.plugin_type = plugin_type
         self._check_config(config)
         self.config = config
         if not 'excludedFiles' in config:
             config['excludedFiles'] = DEFAULT_EXCLUDES
         self.destdir = None
         self.srcdir = os.path.realpath(config['srcdataPath'])
+        # determine fallback plugin type by trying to get the basename 
+        # of the first sub folder in srcdata dir. Ideally the plugin type
+        # should be supplied by commandline or gui
+        if plugin_type is None:
+            first_dir_path = get_first_dir_under_path(self.srcdir)
+            if first_dir_path is None:
+                raise CLIError("E: srcdata dir (given by srcdataPath) doesn't contain any sub folders to represent plugin types.")
+            else:
+                plugin_type = os.path.basename(first_dir_path)
+        self.plugin_type = plugin_type
         self._token_table = {}
         self._rules_list = []
         self._rules_filename = DEFAULT_RULES_FILENAME
@@ -657,7 +738,7 @@ class PluginWizard(object):
         Searches multiple locations with the following precedence:
         
             1. path supplied by CLI arg
-            2. per plugin type (local)
+            2. per plugin type (parent local)
             3. per sourcedata rootdir (global)
             
         :raise: CLIError if a rules file couldn't be found.
@@ -688,26 +769,27 @@ class PluginWizard(object):
             if rules_filepath_name != self._rules_filename:
                 raise CLIError("rules file name doesn't match name specified for rules files. " + 
                                "Expected %r, got %r" % (self._rules_filename, rules_filepath_name))
-        self._rules_filepath = os.path.realpath(rules_filepath)
+            rules_filepath = os.path.realpath(rules_filepath)
+        self._rules_filepath = rules_filepath
         return rules_filepath
-                     
+         
     def _fill_tokentable(self):
         '''
         Create and fill table of ``%!...!%`` magic tokens.
         
-        Angle bracket based tokens are tokens where the value
-        can be deferred automatically (to a degree), with as little 
-        user intervention as possible.
+        Magic tokens are strings of text to replace where the 
+        replacement value can be inferred automatically (to a degree), 
+        with as little user input as possible.
         
         Examples are date, time and author name determined
         from the logon environment.
         
         The table consists of a dict of metadata dicts, 
         the latter of which can have multiple entries,
-        one for each form the datum can be in. 
+        one for each form the datum point can be in. 
         
-        E.g. if the datum is ``AuthorName``, it can have a form as
-        identifier, as abbreviation, etc.
+        E.g. if the datum point is ``AuthorName``, it can have a 
+        form as identifier, as abbreviation, etc.
         
         :param string plugin_id: unique ID for the plugin
         :param string plugin_name: name of the plugin as 
@@ -735,50 +817,37 @@ class PluginWizard(object):
         else:
             plugin_name = str(plugin_name)
         pluginname_tokens = {}
-        pluginname_tokens[''] = plugin_name
         pluginname_tokens['Entered'] = plugin_name
-        pluginname_tokens['Cleaned'] = TextFX.sanitize(
-            plugin_name, safechar='', 
-            replace_umlauts=True, 
-            replace_diacritics=True, 
-            replace_greek=True, 
-            allowed_chars=' ')
-        pluginname_tokens['Identifier'] = TextFX.to_camelcase(pluginname_tokens['Cleaned'], True)
-        pluginname_tokens['UppercaseIdentifier'] = TextFX.to_camelcase(pluginname_tokens['Cleaned'], True).upper()
-        pluginname_tokens['Abbreviation'] = TextFX.abbreviate(pluginname_tokens['Cleaned'], 6)
+        
+        for f in BASE_NAME_FORMS:
+            pluginname_tokens[f] = TextFX.transform(plugin_name, f)
+            
+        pluginname_tokens[''] = pluginname_tokens['Entered']
         self._token_table['PluginName'] = pluginname_tokens
         
         # Author Name
         author_name = config['author']
         authorname_tokens = {}
-        if author_name:
-            authorname_tokens[''] = author_name
-            authorname_tokens['Entered'] = author_name
-            authorname_tokens['Cleaned'] = TextFX.sanitize(
-                author_name, 
-                replace_umlauts=True, 
-                replace_diacritics=True, 
-                replace_greek=True, 
-                allowed_chars=r'_\-() ')
-            authorname_tokens['Identifier'] = TextFX.to_camelcase(author_name, True)
-            authorname_tokens['Abbreviation'] = TextFX.abbreviate(author_name, 6)
-            self._token_table['AuthorName'] = authorname_tokens
+        if author_name is None or len(author_name) == 0:
+            author_name = "Unnamed Author"
+            
+        for f in BASE_NAME_FORMS:
+            authorname_tokens[f] = TextFX.transform(author_name, f)
+            
+        authorname_tokens[''] = author_name
+        self._token_table['AuthorName'] = authorname_tokens
             
         # Organization Name
         org_name = config['org']
         orgname_tokens = {}
-        if org_name is not None:
-            orgname_tokens[''] = org_name
-            orgname_tokens['Entered'] = org_name
-            orgname_tokens['Cleaned'] = TextFX.sanitize(
-                org_name, safechar='', 
-                replace_umlauts=True, 
-                replace_diacritics=True, 
-                replace_greek=True, 
-                allowed_chars=r'_\-()')
-            orgname_tokens['Identifier'] = TextFX.to_camelcase(org_name, True)
-            orgname_tokens['Abbreviation'] = TextFX.abbreviate(org_name, 6)
-            self._token_table['OrgName'] = orgname_tokens
+        if org_name is None:
+            org_name = ''
+        if len(org_name) > 1:
+            for f in BASE_NAME_FORMS:
+                orgname_tokens[f] = TextFX.transform(org_name, f)
+            
+        orgname_tokens[''] = org_name
+        self._token_table['OrgName'] = orgname_tokens
             
         # Date+Time
         datetime_tokens = {}
@@ -806,7 +875,7 @@ class PluginWizard(object):
         time_tokens[''] = TextFX.sanitize(time.strftime('%X'), safechar='', allowed_chars='')
         time_tokens['LocaleSeparated'] = time.strftime('%X')
         time_tokens['Locale'] = TextFX.sanitize(time_tokens['LocaleSeparated'], safechar='', allowed_chars='')
-        time_tokens['EnglishSeparated'] = time.strftime('%H:%M:%S %p')
+        time_tokens['EnglishSeparated'] = time.strftime('%I:%M:%S %p')
         time_tokens['English'] = TextFX.sanitize(time_tokens['EnglishSeparated'], safechar='', allowed_chars='')
         time_tokens['SecondsSinceEpoch'] = str(time.time())
         self._token_table['Time'] = time_tokens
@@ -962,8 +1031,8 @@ class PluginWizard(object):
         E.g. ``Value`` might be ``PluginName`` which would result in the 
         plugin's name as entered by the user. 
         
-        ``PluginNameAsIdentifier`` is ``PluginName`` taking the form of an 
-        ``Identifier``, meaning it has invalid characters replaced, 
+        ``PluginNameAsID`` is ``PluginName`` taking the form of an 
+        ``ID``, meaning it has invalid characters replaced, 
         spaces stripped and converted to *CamelCase* form. 
         
         There are multiple such forms for each magic token. 
@@ -1012,7 +1081,8 @@ class PluginWizard(object):
                 self._process_content(dirpath, somefile)
         return True
 
-    def get_tokentable_listing(self, indent=3):
+    @classmethod
+    def get_tokentable_listing(cls, indent=3):
         '''
         Get a string with all data entries of the token table, including forms.
         
@@ -1020,7 +1090,7 @@ class PluginWizard(object):
         '''
         result = ""
         spaces = " " * indent
-        for k, v in self._token_table.iteritems():
+        for k, v in cls.token_forms.iteritems():
             result += ("%s:" % k) + os.linesep
             for entry in v:
                 if entry == '': # default form
@@ -1034,6 +1104,25 @@ class PluginWizard(object):
         self._check_destdir(somepath)
         self.destdir = somepath
     
+
+def get_parent_dirpath(somepath):
+    if os.path.exists(somepath):
+        return os.path.realpath(os.path.join(somepath, os.pardir))
+    return None
+    
+def get_first_dir_under_path(somepath):
+    '''
+    Return first directory from an alphabetical listing 
+    under ``somepath``, or None if there are no subdirs. 
+    '''
+    if os.path.exists(somepath):
+        root = os.path.realpath(somepath)
+        entries = os.listdir(root)
+        for entry in entries:
+            candidate = os.path.join(root, entry)
+            if os.path.isdir(candidate):
+                return candidate
+    return None
 
 def format_relpath(path, start=os.curdir):
     '''
@@ -1088,6 +1177,8 @@ def is_valid_plugin_id(someId):
     else:
         return (someId > 1000000)
 
+def is_valid_plugin_name(someName):
+    return (len(someName) > 0)
 
 def get_author_name():
     result = None
@@ -1238,7 +1329,7 @@ def main(argv=None, extend=True):  # IGNORE:C0111
     program_license = u'''%s
     
   Created by André Berg on %s.
-  Copyright 2013 Sera Media VFX. All rights reserved.
+  Copyright 2013 Iris VFX. All rights reserved.
   
   Licensed under the Apache License 2.0
   http://www.apache.org/licenses/LICENSE-2.0
@@ -1274,7 +1365,7 @@ def main(argv=None, extend=True):  # IGNORE:C0111
         default_author = get_author_name()
         default_org = get_company_name()
 
-        parser.set_defaults(src=default_source, plugin_type=PLUGIN_TYPE_CMD, 
+        parser.set_defaults(src=default_source, plugin_type=PLUGIN_TYPE_DEFAULT, 
                             author=default_author, org=default_org, verbose=0, 
                             dest=os.curdir, list_tokens=False)
         
@@ -1410,12 +1501,12 @@ def main(argv=None, extend=True):  # IGNORE:C0111
         return 0
     except KeyboardInterrupt:
         return 0
-#     except Exception as e:
-#         if DEBUG or TESTRUN:
-#             raise(e)
-#         sys.stderr.write("%s%s" % (str(e), os.linesep))
-#         sys.stderr.write("for help use --help")
-#         return 2
+    except Exception as e:
+        if DEBUG or TESTRUN:
+            raise(e)
+        sys.stderr.write("%s%s" % (str(e), os.linesep))
+        sys.stderr.write("for help use --help")
+        return 2
 
 
 if __name__ == "__main__":
@@ -1427,13 +1518,12 @@ if __name__ == "__main__":
             su.rmtree('testrun', onerror=rmtree_onerror)
         #os.environ[DEFAULT_ENV_DATA] = "../unittests/data"
         os.environ[DEFAULT_ENV_AUTHOR] = "Andre Berg"
-        os.environ[DEFAULT_ENV_ORG] = "Sera Media VFX"
-        plugintype = "tagplugin"
+        os.environ[DEFAULT_ENV_ORG] = "Iris VFX"
         #main(['-l'])
         #main(['-h'])
-        main(['--verbose', '--create-rootdir', '--force', u'--destination=testrun', 
-              u'--org=', u'--author=Andre Berg', u'--type=cmdplugin', 
-              u'1000001', u"Unnamed Plugins"])
+        main(['--verbose', '--create-rootdir', '--force','--source-data=c4dplugwiz_data/cpp', u'--destination=testrun', 
+              u'--org=Iris VFX', u'--author=Andre Berg', u'--type=shaderplugin', 
+              u'1000001', u"AB_NoiseShader"])
         sys.exit(0)
     if PROFILE:
         import cProfile
@@ -1442,9 +1532,9 @@ if __name__ == "__main__":
             su.rmtree('testrun')
         #os.environ[DEFAULT_ENV_DATA] = "../tests/data"
         os.environ[DEFAULT_ENV_AUTHOR] = "Andre Berg"
-        os.environ[DEFAULT_ENV_ORG] = "Sera Media VFX"
+        os.environ[DEFAULT_ENV_ORG] = "Iris VFX"
         profile_filename = 'c4dplugwiz_profile.pstats'
-        cProfile.run('main(["-v", "-c", "--type=tagplugin", "-f", "-d=testrun", "1000001", "My Plugin"])', profile_filename)
+        cProfile.run('main(["-v", "-c", "--type=shaderplugin", "-f", "-s=c4dplugwiz_data/cpp", -d=testrun", "1000001", "My Plugin"])', profile_filename)
         statsfile = open("profile_stats.txt", "wb")
         p = pstats.Stats(profile_filename, stream=statsfile)
         stats = p.strip_dirs().sort_stats('cumulative')

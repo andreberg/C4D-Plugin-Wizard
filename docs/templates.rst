@@ -11,14 +11,14 @@ Magic tokens are specific text snippets enclosed by the starting character seque
  
 The text snippets that can be used inbetween are called **datum points** and are predetermined. Datum points can also have **alternative forms** into which they will be transformed. 
 
-For example one datum point might be the plugin name as entered by the user and one transformation might be an uppercase transformation, called the **UppercaseIdentifier** form. 
-A complete magic token of the previous example would be **PluginName**, additionally with the alternative form: **PluginNameAsUppercaseIdentifier**. 
+For example one datum point might be the plugin name as entered by the user and one transformation might be an uppercase transformation, called the **UppercaseID** form. 
+A complete magic token of the previous example would be **PluginName**, additionally with the alternative form: **PluginNameAsUppercaseID**. 
 
 Note the adverb **As** that separates the datum point from the alternative form. 
 
 **Rules** on the other hand are read from a Python file called, **rules.py** that can reside in the data directory or in each template directory. This file won't be copied but a Python dictionary type variable named **RULES** will be read from it and the wizard will then perform searches looking for any text strings named the same as the keys of the RULES dict and will then perform replacements with the corresponding values. 
 
-So, if you have a file called ``%!PluginNameAsUppercaseIdentifier!%.pyp`` in one of your templates and you enter ``Super Awesome Plugin`` as the plugin name in the wizard, the file will be renamed to ``SUPERAWESOMEPLUGIN.pyp``
+So, if you have a file called ``%!PluginNameAsUppercaseID!%.pyp`` in one of your templates and you enter ``Super Awesome Plugin`` as the plugin name in the wizard, the file will be renamed to ``SUPERAWESOMEPLUGIN.pyp``
 
 Likewise, suppose your **rules.py** file contains the following **RULES** dict: 
 
@@ -34,58 +34,4 @@ Likewise, suppose your **rules.py** file contains the following **RULES** dict:
 The wizard will now replace any occurrences of ``${YEAR}`` with the current year as returned by ``time.strftime`` and any occurrence of ``COMPANY`` with ``'My Company'``. 
 Again, this includes files and directory names as well as file contents. 
 
-
-Magic Tokens
-============
-
-Currently the following magic tokens are supported: 
-
-*Note: magic tokens and rules are case sensitive.* 
-
-.. code::
-
-	OrgName:
-	   OrgNameAsAbbreviation
-	   OrgNameAsEntered
-	   OrgNameAsIdentifier
-	   OrgNameAsCleaned
-
-	PluginName:
-	   PluginNameAsUppercaseIdentifier
-	   PluginNameAsAbbreviation
-	   PluginNameAsCleaned
-	   PluginNameAsEntered
-	   PluginNameAsIdentifier
-
-	DateTime:
-	   DateTimeAsLocale
-	   DateTimeAsIso
-
-	AuthorName:
-	   AuthorNameAsAbbreviation
-	   AuthorNameAsEntered
-	   AuthorNameAsIdentifier
-	   AuthorNameAsCleaned
-
-	Time:
-	   TimeAsSecondsSinceEpoch
-	   TimeAsLocaleSeparated
-	   TimeAsLocale
-	   TimeAsEnglishSeparated
-	   TimeAsEnglish
-
-	Date:
-	   DateAsLocaleSeparated
-	   DateAsNameOfDay
-	   DateAsLocale
-	   DateAsEnglishSeparated
-	   DateAsIsoSeparated
-	   DateAsEnglishDashSeparated
-	   DateAsIso
-	   DateAsEnglish
-	   DateAsShortNameOfDay
-
-	ID:
-	   IDAsEntered
-
- 
+See also :ref:`tips`.

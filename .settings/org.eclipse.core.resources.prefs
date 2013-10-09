@@ -1,8 +1,9 @@
 eclipse.preferences.version=1
+encoding//backup/setup.py=utf-8
+encoding//docs/conf.py=utf-8
 encoding//source/c4dplugwiz.py=utf-8
-encoding//source/c4dplugwiz_data/rules.py=utf-8
+encoding//source/c4dplugwiz_data/cpp/rules.py=utf-8
 encoding//source/gui.py=utf-8
-encoding//source/setup.py=utf-8
 encoding//tests/c4dplugwiz_tests.py=utf-8
 encoding//tests/data/expected/contenttests/testfile1.py=utf-8
 encoding//tests/data/output/contenttests/testfile1.py=utf-8

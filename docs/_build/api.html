@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API &mdash; CINEMA 4D Plugin Wizard 0.5 documentation</title>
+    <title>API &mdash; CINEMA 4D Plugin Wizard 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5',
+        VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CINEMA 4D Plugin Wizard 0.5 documentation" href="index.html" />
-    <link rel="prev" title="About Templates" href="templates.html" /> 
+    <link rel="top" title="CINEMA 4D Plugin Wizard 1.0 documentation" href="index.html" />
+    <link rel="prev" title="Alternative Forms" href="forms.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,9 +37,9 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="templates.html" title="About Templates"
+          <a href="forms.html" title="Alternative Forms"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">CINEMA 4D Plugin Wizard 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,14 +52,14 @@
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="c4dplugwiz.PluginWizard">
-<em class="property">class </em><tt class="descclassname">c4dplugwiz.</tt><tt class="descname">PluginWizard</tt><big>(</big><em>config</em>, <em>plugin_type='cmdplugin'</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#PluginWizard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.PluginWizard" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">c4dplugwiz.</tt><tt class="descname">PluginWizard</tt><big>(</big><em>config</em>, <em>plugin_type=None</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#PluginWizard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.PluginWizard" title="Permalink to this definition">¶</a></dt>
 <dd><p>CINEMA 4D plugin template wizard.</p>
 <p>Main class which provides methods for replacements in 
 the names and contents of files contained within a folder 
 structure.</p>
-<dl class="method">
+<dl class="classmethod">
 <dt id="c4dplugwiz.PluginWizard.get_tokentable_listing">
-<tt class="descname">get_tokentable_listing</tt><big>(</big><em>indent=3</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#PluginWizard.get_tokentable_listing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.PluginWizard.get_tokentable_listing" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><tt class="descname">get_tokentable_listing</tt><big>(</big><em>indent=3</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#PluginWizard.get_tokentable_listing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.PluginWizard.get_tokentable_listing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a string with all data entries of the token table, including forms.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -97,8 +97,8 @@ are being skipped by default.</td>
 a conjugate of that value.</p>
 <p>E.g. <tt class="docutils literal"><span class="pre">Value</span></tt> might be <tt class="docutils literal"><span class="pre">PluginName</span></tt> which would result in the 
 plugin&#8217;s name as entered by the user.</p>
-<p><tt class="docutils literal"><span class="pre">PluginNameAsIdentifier</span></tt> is <tt class="docutils literal"><span class="pre">PluginName</span></tt> taking the form of an 
-<tt class="docutils literal"><span class="pre">Identifier</span></tt>, meaning it has invalid characters replaced, 
+<p><tt class="docutils literal"><span class="pre">PluginNameAsID</span></tt> is <tt class="docutils literal"><span class="pre">PluginName</span></tt> taking the form of an 
+<tt class="docutils literal"><span class="pre">ID</span></tt>, meaning it has invalid characters replaced, 
 spaces stripped and converted to <em>CamelCase</em> form.</p>
 <p>There are multiple such forms for each magic token. 
 For an overview call <tt class="xref py py-func docutils literal"><span class="pre">print_tokentable()</span></tt>.</p>
@@ -259,7 +259,7 @@ processing with an underscore. Default is &#8216;replace&#8217;.</li>
 
 <dl class="staticmethod">
 <dt id="c4dplugwiz.TextFX.to_camelcase">
-<em class="property">static </em><tt class="descname">to_camelcase</tt><big>(</big><em>word</em>, <em>capitalized=True</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX.to_camelcase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX.to_camelcase" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">to_camelcase</tt><big>(</big><em>word</em>, <em>capitalize=True</em><big>)</big><a class="reference internal" href="_modules/c4dplugwiz.html#TextFX.to_camelcase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#c4dplugwiz.TextFX.to_camelcase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert &#8216;word&#8217; to CamelCase.</p>
 <p>Examples:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">&#39;hot flaming cats&#39;</span><span class="p">)</span>
@@ -272,7 +272,7 @@ processing with an underscore. Default is &#8216;replace&#8217;.</li>
 <span class="go">&#39;HotFlamingCats&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">&#39;Hot Flaming _ Cats&#39;</span><span class="p">)</span>
 <span class="go">&#39;HotFlamingCats&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">u&#39;höt_fläming_cäts&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">TextFX</span><span class="o">.</span><span class="n">to_camelcase</span><span class="p">(</span><span class="s">u&#39;höt_fläming_cäts&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
 <span class="go">hötFlämingCäts</span>
 </pre></div>
 </div>
@@ -302,8 +302,8 @@ the first character of the result.</li>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="templates.html"
-                        title="previous chapter">About Templates</a></p>
+  <p class="topless"><a href="forms.html"
+                        title="previous chapter">Alternative Forms</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/api.txt"
@@ -336,9 +336,9 @@ the first character of the result.</li>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="templates.html" title="About Templates"
+          <a href="forms.html" title="Alternative Forms"
              >previous</a> |</li>
-        <li><a href="index.html">CINEMA 4D Plugin Wizard 0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">CINEMA 4D Plugin Wizard 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
