@@ -10,8 +10,8 @@
 author_name="André Berg"
 app_name="CINEMA 4D Plugin Wizard"
 app_icon="c4dapp.icns"
-bundle_identifier="com.seramediavfx.C4DPluginWizard"
-version="0.1"
+bundle_identifier="com.irisvfx.C4DPluginWizard"
+version="1.1"
 cr_year=`date +%Y`
 base="$HOME/Documents/Eclipse/Workspaces/Python/C4D Plugin Wizard"
 pyinstdir="$HOME/source/pyinstaller-2.0"
@@ -31,7 +31,7 @@ rm -rf "$distdir"
 
 # create dirs
 
-echo "\n-------------- creating appdir ---------------\n"
+echo -e "\n-------------- creating Appdir ---------------\n"
 mkdir -p "$appdir"
 
 if [[ ! -d "$appdir" ]]; then
@@ -39,31 +39,31 @@ if [[ ! -d "$appdir" ]]; then
 	exit 1
 fi
 
-echo "\n------------- Create Bindir ---------------\n"
+echo -e "\n------------- Create Bindir ---------------\n"
 mkdir -p "$bindir"
 
-echo "\n-------------- Create Resdir ---------------\n"
+echo -e "\n-------------- Create Resdir ---------------\n"
 mkdir -p "$resdir"
 
 # copy over resources
 
-echo "\n-------------- Copy Binary ---------------\n"
+echo -e "\n-------------- Copy Binary ---------------\n"
 cp -v "$distdir/$app_name" "$bindir"
 
-echo "\n-------------- Copy Icon ---------------\n"
+echo -e "\n-------------- Copy Icon ---------------\n"
 cp -v "$base/source/res/$app_icon" "$resdir"
 
 
 # copying images and data is handled by Python code inside the Spec file
 
-# echo "\n-------------- copying images ---------------\n"
+# echo -e "\n-------------- copying images ---------------\n"
 # cp -Rv "$base/source/images" "$resdir"
 
 # echo -e "\n-------------- copying data ---------------\n"
 # cp -Rv "$base/source/c4dplugwiz_data" "$resdir"
 
 
-echo "\n-------------- Create Info.plist ---------------\n"
+echo -e "\n-------------- Create Info.plist ---------------\n"
 
 cat > "$contentsdir/Info.plist" <<NFO
 <?xml version="1.0" encoding="UTF-8"?>
@@ -108,15 +108,15 @@ cat > "$contentsdir/Info.plist" <<NFO
 </plist>
 NFO
 
-echo "\n--------------- Clean Up ---------------\n"
+echo -e "\n--------------- Clean Up ---------------\n"
 
 rm "$resdir/icon-windowed.icns"
 
-echo "\n--------------- Make Zip ---------------\n"
+echo -e "\n--------------- Make Zip ---------------\n"
 
 cd "$distdir"
 zip -r  -Z=deflate -9 "$app_name (OSX).zip" "c4dplugwiz_data/" "images/" "$app_name.app/"
 cd -
 
-echo "\n--------------- Done ---------------\n"
+echo -e "\n--------------- Done ---------------\n"
 open -a "Finder" "$distdir"
