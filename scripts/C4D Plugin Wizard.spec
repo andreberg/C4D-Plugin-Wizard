@@ -51,7 +51,11 @@ elif sys.platform == "darwin":
     
     exe = EXE(pyz,
           a.scripts,
-          a.binaries,
+          # possible fix for http://github.com/andreberg/C4D-Plugin-Wizard/issues/1
+          # see also: http://www.pyinstaller.org/ticket/595
+          a.binaries + [('libQtCLucene.4.dylib',
+                         '/usr/lib/libQtCLucene.4.dylib',
+                         'BINARY')],
           a.zipfiles,
           a.datas,
           name=os.path.join(outdir, 'CINEMA 4D Plugin Wizard'),
